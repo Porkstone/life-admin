@@ -14,6 +14,15 @@ import {
   Sparkles,
   UsersRound,
 } from "lucide-react";
+import {
+  Navigate,
+  NavLink,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
@@ -38,32 +47,39 @@ type DashboardTab =
   | "admin";
 
 const dashboardTabs = [
-  { id: "people", label: "People", icon: UsersRound },
-  { id: "vehicles", label: "Vehicles", icon: Car },
-  { id: "homes", label: "Homes", icon: House },
-  { id: "mobile", label: "Mobile", icon: Smartphone },
-  { id: "invites", label: "Invites & Access", icon: Link2 },
-] satisfies Array<{ id: Exclude<DashboardTab, "admin">; label: string; icon: typeof UsersRound }>;
+  { id: "people", label: "People", path: "/people", icon: UsersRound },
+  { id: "vehicles", label: "Vehicles", path: "/vehicles", icon: Car },
+  { id: "homes", label: "Homes", path: "/homes", icon: House },
+  { id: "mobile", label: "Mobile", path: "/mobile", icon: Smartphone },
+  {
+    id: "invites",
+    label: "Invites & Access",
+    path: "/invites",
+    icon: Link2,
+  },
+] satisfies Array<{
+  id: Exclude<DashboardTab, "admin">;
+  label: string;
+  path: string;
+  icon: typeof UsersRound;
+}>;
 
 export default function App() {
-  const [inviteToken, setInviteToken] = useState<string | null>(null);
-  const [resetToken, setResetToken] = useState<string | null>(null);
+  return (
+    <Routes>
+      <Route path="/invite/:token" element={<InvitePage />} />
+      <Route path="/reset-password/:token" element={<PasswordResetRoute />} />
+      <Route path="/*" element={<DashboardShell />} />
+    </Routes>
+  );
+}
+
+function DashboardShell() {
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const path = window.location.pathname;
-    const inviteMatch = path.match(/^\/invite\/(.+)$/);
-    if (inviteMatch) {
-      setInviteToken(inviteMatch[1]);
-      return;
-    }
-
-    const resetMatch = path.match(/^\/reset-password\/(.+)$/);
-    if (resetMatch) {
-      setResetToken(resetMatch[1]);
-      return;
-    }
-
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(location.search);
     if (urlParams.get("reset-validated") === "true") {
       const email = urlParams.get("email");
       toast.success(
@@ -71,35 +87,9 @@ export default function App() {
           email ? ` (${email})` : ""
         }`,
       );
-      window.history.replaceState({}, "", "/");
+      navigate("/people", { replace: true });
     }
-  }, []);
-
-  if (resetToken) {
-    return <PasswordResetPage token={resetToken} />;
-  }
-
-  if (inviteToken) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm h-16 flex justify-between items-center border-b shadow-sm px-4">
-          <h2 className="text-xl font-semibold text-blue-600">Life Admin</h2>
-          <Authenticated>
-            <SignOutButton />
-          </Authenticated>
-        </header>
-        <main className="flex-1 p-4">
-          <Authenticated>
-            <InviteAccept token={inviteToken} />
-          </Authenticated>
-          <Unauthenticated>
-            <InviteAccept token={inviteToken} />
-          </Unauthenticated>
-        </main>
-        <Toaster />
-      </div>
-    );
-  }
+  }, [location.search, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -114,6 +104,44 @@ export default function App() {
       </main>
       <Toaster />
     </div>
+  );
+}
+
+function InvitePage() {
+  const { token } = useParams<{ token: string }>();
+
+  if (!token) {
+    return <Navigate to="/people" replace />;
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm h-16 flex justify-between items-center border-b shadow-sm px-4">
+        <h2 className="text-xl font-semibold text-blue-600">Life Admin</h2>
+        <Authenticated>
+          <SignOutButton />
+        </Authenticated>
+      </header>
+      <main className="flex-1 p-4">
+        <Authenticated>
+          <InviteAccept token={token} />
+        </Authenticated>
+        <Unauthenticated>
+          <InviteAccept token={token} />
+        </Unauthenticated>
+      </main>
+      <Toaster />
+    </div>
+  );
+}
+
+function PasswordResetRoute() {
+  const { token } = useParams<{ token: string }>();
+
+  return token ? (
+    <PasswordResetPage token={token} />
+  ) : (
+    <Navigate to="/people" replace />
   );
 }
 
@@ -153,14 +181,7 @@ function Content() {
     api.admin.getAccessStatus,
     loggedInUser ? {} : "skip",
   );
-  const [activeTab, setActiveTab] = useState<DashboardTab>("people");
   const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(null);
-
-  useEffect(() => {
-    if (activeTab === "admin" && loggedInUser && loggedInUser.role !== "admin") {
-      setActiveTab("people");
-    }
-  }, [activeTab, loggedInUser]);
 
   if (loggedInUser === undefined) {
     return (
@@ -189,65 +210,92 @@ function Content() {
             {dashboardTabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
+                <NavLink
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-white text-blue-600 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
-                  }`}
+                  to={tab.path}
+                  className={({ isActive }) =>
+                    `flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`
+                  }
                 >
                   <Icon className="h-4 w-4" />
                   {tab.label}
-                </button>
+                </NavLink>
               );
             })}
 
             {loggedInUser?.role === "admin" && (
-              <button
-                onClick={() => setActiveTab("admin")}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === "admin"
-                    ? "bg-slate-950 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-slate-950 text-white shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`
+                }
               >
                 <ShieldCheck className="h-4 w-4" />
                 Admin
-              </button>
+              </NavLink>
             )}
           </nav>
         </div>
 
-        {activeTab === "people" && (
-          <PeopleManager
-            selectedUserId={selectedUserId}
-            onUserChange={setSelectedUserId}
+        <Routes>
+          <Route index element={<Navigate to="/people" replace />} />
+          <Route
+            path="people"
+            element={
+              <PeopleManager
+                selectedUserId={selectedUserId}
+                onUserChange={setSelectedUserId}
+              />
+            }
           />
-        )}
-        {activeTab === "vehicles" && (
-          <VehicleManager
-            selectedUserId={selectedUserId}
-            onUserChange={setSelectedUserId}
+          <Route
+            path="vehicles"
+            element={
+              <VehicleManager
+                selectedUserId={selectedUserId}
+                onUserChange={setSelectedUserId}
+              />
+            }
           />
-        )}
-        {activeTab === "homes" && (
-          <HomeManager
-            selectedUserId={selectedUserId}
-            onUserChange={setSelectedUserId}
+          <Route
+            path="homes"
+            element={
+              <HomeManager
+                selectedUserId={selectedUserId}
+                onUserChange={setSelectedUserId}
+              />
+            }
           />
-        )}
-        {activeTab === "mobile" && (
-          <MobileContractManager
-            selectedUserId={selectedUserId}
-            onUserChange={setSelectedUserId}
+          <Route
+            path="mobile"
+            element={
+              <MobileContractManager
+                selectedUserId={selectedUserId}
+                onUserChange={setSelectedUserId}
+              />
+            }
           />
-        )}
-        {activeTab === "invites" && <InviteManager />}
-        {activeTab === "admin" && loggedInUser?.role === "admin" && (
-          <AdminPanel />
-        )}
+          <Route path="invites" element={<InviteManager />} />
+          <Route
+            path="admin"
+            element={
+              loggedInUser?.role === "admin" ? (
+                <AdminPanel />
+              ) : (
+                <Navigate to="/people" replace />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/people" replace />} />
+        </Routes>
       </Authenticated>
 
       <Unauthenticated>
