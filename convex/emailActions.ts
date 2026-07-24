@@ -7,8 +7,9 @@ import { Resend } from "resend";
 
 // Generate a secure random token
 function generateResetToken(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
   for (let i = 0; i < 32; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -19,10 +20,12 @@ export const requestPasswordReset = action({
   args: { email: v.string() },
   handler: async (ctx, args) => {
     const { email } = args;
-    
+
     // Check if user exists with this email
-    const user = await ctx.runQuery(api.passwordReset.getUserByEmail, { email });
-    
+    const user = await ctx.runQuery(api.passwordReset.getUserByEmail, {
+      email,
+    });
+
     if (!user) {
       // Don't reveal whether the email exists or not for security
       return { success: true };
@@ -30,7 +33,7 @@ export const requestPasswordReset = action({
 
     // Generate reset token
     const token = generateResetToken();
-    const expiresAt = Date.now() + (60 * 60 * 1000); // 1 hour from now
+    const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour from now
 
     // Store the reset token
     await ctx.runMutation(api.passwordReset.createResetToken, {
@@ -41,8 +44,8 @@ export const requestPasswordReset = action({
 
     // Send email with reset link
     const resend = new Resend(process.env.CONVEX_RESEND_API_KEY);
-    const resetUrl = `${process.env.CONVEX_SITE_URL || 'http://localhost:5173'}/reset-password/${token}`;
-    
+    const resetUrl = `${process.env.CONVEX_SITE_URL || "http://localhost:5173"}/reset-password/${token}`;
+
     try {
       await resend.emails.send({
         from: "Life Admin <colorless-chickadee-470@convexchef.app>",
@@ -68,7 +71,9 @@ export const requestPasswordReset = action({
       });
     } catch (error) {
       console.error("Failed to send reset email:", error);
-      throw new Error("Failed to send reset email");
+      throw Object.assign(new Error("Failed to send reset email"), {
+        cause: error,
+      });
     }
 
     return { success: true };

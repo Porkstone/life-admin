@@ -69,9 +69,18 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-return": "off",
       // END: Allow implicit `any`s
 
+      // React event attributes intentionally accept async handlers.
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        { checksVoidReturn: { attributes: false } },
+      ],
+
       // Allow async functions without await
       // for consistency (esp. Convex `handler`s)
       "@typescript-eslint/require-await": "off",
+
+      // Existing form components derive local state from incoming data.
+      "react-hooks/set-state-in-effect": "off",
     },
   },
 );

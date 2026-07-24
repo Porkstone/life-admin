@@ -7,13 +7,13 @@ export function SignInForm() {
   const { signIn } = useAuthActions();
   const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
   const [submitting, setSubmitting] = useState(false);
-  
+
   // Pre-fill email if provided in URL (from password reset)
   const [defaultEmail, setDefaultEmail] = useState("");
-  
+
   useState(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get('email');
+    const email = urlParams.get("email");
     if (email) {
       setDefaultEmail(email);
     }
@@ -29,7 +29,7 @@ export function SignInForm() {
           const formData = new FormData(e.target as HTMLFormElement);
           formData.set("flow", flow);
           void signIn("password", formData).catch((error) => {
-            let toastTitle = "";
+            let toastTitle: string;
             if (error.message.includes("Invalid password")) {
               toastTitle = "Invalid password. Please try again.";
             } else {

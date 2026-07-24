@@ -87,7 +87,7 @@ function DashboardShell() {
           email ? ` (${email})` : ""
         }`,
       );
-      navigate("/people", { replace: true });
+      void navigate("/people", { replace: true });
     }
   }, [location.search, navigate]);
 
@@ -181,7 +181,9 @@ function Content() {
     api.admin.getAccessStatus,
     loggedInUser ? {} : "skip",
   );
-  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<Id<"users"> | null>(
+    null,
+  );
 
   if (loggedInUser === undefined) {
     return (
@@ -301,9 +303,12 @@ function Content() {
       <Unauthenticated>
         <div className="flex flex-col items-center justify-center h-64 gap-6">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Life Admin</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Life Admin
+            </h1>
             <p className="text-xl text-gray-600 mb-8">
-              Organize and manage personal information for you and your loved ones
+              Organize and manage personal information for you and your loved
+              ones
             </p>
           </div>
           <div className="w-full max-w-md">
