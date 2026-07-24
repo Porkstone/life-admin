@@ -26,7 +26,11 @@ export const getAccessStatus = query({
   }),
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
-    const currentUser = userId ? await ctx.db.get(userId) : null;
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const currentUser = await ctx.db.get(userId);
     const existingAdmin = await ctx.db
       .query("users")
       .withIndex("by_role", (q) => q.eq("role", "admin"))
@@ -75,6 +79,14 @@ export const listUsers = query({
     page: v.array(adminUserValidator),
     isDone: v.boolean(),
     continueCursor: v.string(),
+    splitCursor: v.optional(v.union(v.string(), v.null())),
+    pageStatus: v.optional(
+      v.union(
+        v.literal("SplitRecommended"),
+        v.literal("SplitRequired"),
+        v.null(),
+      ),
+    ),
   }),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
