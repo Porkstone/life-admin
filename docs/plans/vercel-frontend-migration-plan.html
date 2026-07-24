@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Life Admin — Vercel Frontend Migration Plan</title>
+    <style>
+      :root {
+        --ink: #172033;
+        --muted: #5f6b7d;
+        --line: #dce3ec;
+        --paper: #ffffff;
+        --canvas: #f4f7fb;
+        --accent: #3157d5;
+        --accent-soft: #eef2ff;
+        --good: #167451;
+        --good-soft: #e9f8f1;
+        --warn: #925f08;
+        --warn-soft: #fff6dd;
+        --danger: #9f2d35;
+        --danger-soft: #fff0f1;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(49, 87, 213, 0.08), transparent 32rem),
+          var(--canvas);
+        font: 15px/1.58 Aptos, "Segoe UI Variable", "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1060px, calc(100% - 32px));
+        margin: 40px auto 72px;
+      }
+
+      header,
+      section {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 12px 34px rgba(24, 39, 75, 0.06);
+      }
+
+      header {
+        padding: 38px 42px;
+        border-top: 5px solid var(--accent);
+      }
+
+      section {
+        margin-top: 18px;
+        padding: 28px 32px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin-bottom: 12px;
+        font-family: "Iowan Old Style", Baskerville, "Times New Roman", serif;
+        font-size: clamp(30px, 5vw, 48px);
+        font-weight: 650;
+        line-height: 1.03;
+        letter-spacing: -0.025em;
+      }
+
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 18px;
+        font-family: "Iowan Old Style", Baskerville, "Times New Roman", serif;
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+
+      h2::after {
+        height: 1px;
+        flex: 1;
+        background: linear-gradient(90deg, var(--line), transparent);
+        content: "";
+      }
+
+      h3 {
+        margin-bottom: 6px;
+        font-size: 16px;
+      }
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+
+      .eyebrow {
+        margin-bottom: 12px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .lede {
+        max-width: 850px;
+        margin-bottom: 22px;
+        color: var(--muted);
+        font-size: 18px;
+      }
+
+      .meta,
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 5px 11px;
+        border: 1px solid #cfd8ff;
+        border-radius: 999px;
+        color: #2947ae;
+        background: var(--accent-soft);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr auto 1fr;
+        align-items: stretch;
+        gap: 12px;
+      }
+
+      .node {
+        min-height: 120px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fbfcfe;
+      }
+
+      .node strong {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 16px;
+      }
+
+      .node span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .arrow {
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font-size: 24px;
+        font-weight: 800;
+      }
+
+      .summary-grid,
+      .risk-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .callout {
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fbfcfe;
+      }
+
+      .callout p {
+        margin-bottom: 0;
+        color: var(--muted);
+      }
+
+      .callout.good {
+        border-color: #b9e3d2;
+        background: var(--good-soft);
+      }
+
+      .callout.warn {
+        border-color: #efd693;
+        background: var(--warn-soft);
+      }
+
+      .callout.danger {
+        border-color: #efc1c5;
+        background: var(--danger-soft);
+      }
+
+      .steps {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: plan-step;
+      }
+
+      .steps > li {
+        position: relative;
+        min-height: 72px;
+        padding: 18px 18px 18px 68px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fbfcfe;
+        counter-increment: plan-step;
+      }
+
+      .steps > li::before {
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 10px;
+        color: #fff;
+        background: var(--accent);
+        content: counter(plan-step);
+        font-weight: 800;
+      }
+
+      .steps p {
+        margin-bottom: 0;
+        color: var(--muted);
+      }
+
+      .steps ul,
+      .checks,
+      .questions {
+        margin: 9px 0 0;
+        padding-left: 19px;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      code {
+        padding: 2px 5px;
+        border: 1px solid #d9e0ea;
+        border-radius: 5px;
+        color: #24335d;
+        background: #f2f5f9;
+        font: 0.92em/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      table {
+        width: 100%;
+        border-spacing: 0;
+        border-collapse: separate;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: #364154;
+        background: #f3f6fa;
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      td:nth-child(1) {
+        width: 24%;
+        font-weight: 700;
+      }
+
+      td:nth-child(2) {
+        width: 20%;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+      }
+
+      .decision {
+        padding: 14px 16px;
+        border-left: 4px solid var(--accent);
+        border-radius: 0 10px 10px 0;
+        background: var(--accent-soft);
+      }
+
+      .decision strong {
+        color: #2947ae;
+      }
+
+      .footer-note {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          width: min(100% - 20px, 1060px);
+          margin-top: 16px;
+        }
+
+        header,
+        section {
+          padding: 24px 20px;
+          border-radius: 14px;
+        }
+
+        .architecture,
+        .summary-grid,
+        .risk-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .arrow {
+          transform: rotate(90deg);
+        }
+
+        table,
+        thead,
+        tbody,
+        tr,
+        th,
+        td {
+          display: block;
+        }
+
+        thead {
+          display: none;
+        }
+
+        tr + tr {
+          border-top: 1px solid var(--line);
+        }
+
+        td {
+          width: auto !important;
+          border: 0;
+          padding: 9px 12px;
+        }
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+
+        main {
+          width: 100%;
+          margin: 0;
+        }
+
+        header,
+        section {
+          break-inside: avoid;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Migration plan · 24 July 2026</p>
+        <h1>Move the Life Admin frontend to Vercel</h1>
+        <p class="lede">
+          Keep all data, functions, authentication, file storage, and email actions on the existing Convex
+          backend. Vercel will serve only the compiled Vite/React frontend.
+        </p>
+        <div class="meta">
+          <span class="chip">Small code change</span>
+          <span class="chip">No data migration</span>
+          <span class="chip">Low-risk cutover</span>
+          <span class="chip">Backend remains Convex</span>
+        </div>
+      </header>
+
+      <section aria-labelledby="target">
+        <h2 id="target">Target architecture</h2>
+        <div class="architecture">
+          <div class="node">
+            <strong>User browser</strong>
+            <span>Loads the SPA and follows invite/password-reset deep links.</span>
+          </div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node">
+            <strong>Vercel</strong>
+            <span>Builds and serves the static Vite frontend from its CDN.</span>
+          </div>
+          <div class="arrow" aria-hidden="true">→</div>
+          <div class="node">
+            <strong>Convex</strong>
+            <span>Continues to provide auth, realtime data, functions, HTTP routes, storage, and Resend actions.</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="assessment">
+        <h2 id="assessment">Current-state assessment</h2>
+        <div class="summary-grid">
+          <div class="callout good">
+            <h3>Already separated</h3>
+            <p>The app is already Vite/React in <code>src/</code> with Convex functions in <code>convex/</code>; no framework rewrite is required.</p>
+          </div>
+          <div class="callout good">
+            <h3>Correct client variable</h3>
+            <p><code>src/main.tsx</code> already expects <code>VITE_CONVEX_URL</code>, which the Convex deploy command can inject during the Vercel build.</p>
+          </div>
+          <div class="callout warn">
+            <h3>Deep links need a rewrite</h3>
+            <p><code>/invite/:token</code> and <code>/reset-password/:token</code> require a Vercel SPA fallback to <code>/index.html</code>.</p>
+          </div>
+          <div class="callout danger">
+            <h3>One same-origin dependency</h3>
+            <p><code>fetch("/reset-password")</code> would call Vercel after the move, not the Convex HTTP endpoint. This must be decoupled before cutover.</p>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="plan">
+        <h2 id="plan">Implementation plan</h2>
+        <ol class="steps">
+          <li>
+            <h3>1. Establish a deployable repository baseline</h3>
+            <p>
+              Put this directory in a Git repository that Vercel can import. Stop ignoring
+              <code>package-lock.json</code> and commit it so installs are reproducible. Record which Convex
+              deployment is production; the README currently names <code>colorless-chickadee-470</code>.
+            </p>
+          </li>
+          <li>
+            <h3>2. Remove assumptions that frontend and backend share an origin</h3>
+            <ul>
+              <li>Replace the relative password-reset HTTP call with the existing Convex mutation through the Convex React client. This avoids a Vercel proxy and browser CORS configuration.</li>
+              <li>Introduce a backend environment variable such as <code>APP_URL</code> for links generated in emails, and set it to the final Vercel/custom-domain origin.</li>
+              <li>Keep <code>CONVEX_SITE_URL</code> in <code>convex/auth.config.ts</code>; it identifies the Convex auth issuer and should not be changed to the Vercel URL.</li>
+              <li>While touching the reset email, replace the hard-coded recipient with the requested email and confirm the Resend sender is valid for production.</li>
+            </ul>
+          </li>
+          <li>
+            <h3>3. Add repository-owned Vercel configuration</h3>
+            <ul>
+              <li>
+                Add a <code>vercel-build</code> script in <code>package.json</code> that runs
+                <code>convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd "npm run build"</code>.
+                Configure Vercel to use that script so every production frontend build deploys the matching Convex backend first.
+              </li>
+              <li>
+                Add <code>vercel.json</code> with the build command and a catch-all rewrite to
+                <code>/index.html</code> for direct visits to SPA routes.
+              </li>
+              <li>Optionally remove the Chef-only development injection from <code>vite.config.ts</code> once Chef previews are no longer used.</li>
+            </ul>
+          </li>
+          <li>
+            <h3>4. Configure Convex and Vercel</h3>
+            <ul>
+              <li>Generate a Convex <strong>production deploy key</strong> with deployment permission and add it to Vercel as <code>CONVEX_DEPLOY_KEY</code>, scoped to Production only.</li>
+              <li>Set <code>APP_URL</code> on the Convex production deployment to the canonical Vercel URL. Keep backend-only secrets such as <code>CONVEX_RESEND_API_KEY</code> in Convex, not Vercel.</li>
+              <li>Import the Git repository into Vercel, confirm the framework preset is Vite, and deploy from the production branch.</li>
+            </ul>
+          </li>
+          <li>
+            <h3>5. Verify, cut over, and retain rollback</h3>
+            <ul>
+              <li>Run type checks and a production build before deployment.</li>
+              <li>Smoke-test sign-in/out, realtime CRUD, file upload/download, invite creation/acceptance, password-reset email, and password reset.</li>
+              <li>Hard-refresh both tokenized routes to prove the SPA rewrite works.</li>
+              <li>Check Vercel build logs and Convex production logs, then move the custom domain—or begin using the Vercel URL.</li>
+              <li>Leave the old Convex-hosted frontend available briefly. Rollback is simply returning traffic to it or restoring the previous Vercel deployment; Convex data is never moved.</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="environment">
+        <h2 id="environment">Environment ownership</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Where it lives</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>CONVEX_DEPLOY_KEY</code></td>
+              <td>Vercel secret</td>
+              <td>Allows CI to deploy functions to the selected Convex production deployment. Never expose it to the browser.</td>
+            </tr>
+            <tr>
+              <td><code>VITE_CONVEX_URL</code></td>
+              <td>Build-time injection</td>
+              <td>Public Convex client URL. Let <code>convex deploy</code> inject the URL for the deployment being built.</td>
+            </tr>
+            <tr>
+              <td><code>APP_URL</code></td>
+              <td>Convex environment</td>
+              <td>Canonical frontend origin used to generate invite/reset links, for example <code>https://life-admin.vercel.app</code>.</td>
+            </tr>
+            <tr>
+              <td><code>CONVEX_RESEND_API_KEY</code></td>
+              <td>Convex environment</td>
+              <td>Existing backend-only email secret; no change in ownership.</td>
+            </tr>
+            <tr>
+              <td><code>CONVEX_SITE_URL</code></td>
+              <td>Convex runtime</td>
+              <td>Convex HTTP/auth origin. Do not repurpose this as the Vercel frontend URL.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section aria-labelledby="acceptance">
+        <h2 id="acceptance">Acceptance criteria</h2>
+        <ul class="checks">
+          <li>The production URL serves the frontend from Vercel while all application data remains in the intended Convex production deployment.</li>
+          <li>A production Git push deploys both the Convex functions and the matching Vite bundle.</li>
+          <li>Direct navigation and refresh work for <code>/invite/:token</code> and <code>/reset-password/:token</code>.</li>
+          <li>No browser request incorrectly sends a backend route to the Vercel origin.</li>
+          <li>Generated emails use the canonical frontend URL and complete the reset flow successfully.</li>
+          <li>Secrets are present only in their owning server-side platform and are absent from the frontend bundle.</li>
+        </ul>
+        <p class="decision">
+          <strong>Recommended rollout:</strong> deploy to the default <code>*.vercel.app</code> URL, complete the smoke test,
+          then attach the custom domain. Do not retire the existing Convex-hosted frontend until the reset and invite flows pass.
+        </p>
+      </section>
+
+      <section aria-labelledby="questions">
+        <h2 id="questions">Questions to confirm before implementation</h2>
+        <ol class="questions">
+          <li>Is <code>colorless-chickadee-470</code> the Convex production deployment that Vercel should target?</li>
+          <li>What should the canonical frontend URL be initially: the generated Vercel URL or an existing custom domain?</li>
+          <li>Should pull-request previews use isolated Convex preview deployments? If yes, add a Preview Deploy Key and a strategy for preview secrets/seed data; never give preview builds the production deploy key.</li>
+        </ol>
+      </section>
+
+      <section aria-labelledby="references">
+        <h2 id="references">Reference implementation guidance</h2>
+        <p class="footer-note">
+          Based on the official
+          <a href="https://docs.convex.dev/production/hosting/vercel">Convex guide for Vercel</a>,
+          <a href="https://docs.convex.dev/cli/reference/deploy">Convex deploy command reference</a>, and
+          <a href="https://vercel.com/docs/frameworks/frontend/vite">Vercel Vite SPA guidance</a>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
