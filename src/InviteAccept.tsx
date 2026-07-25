@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { toast } from "sonner";
 import { SignInForm } from "./SignInForm";
-// import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router";
 
 interface InviteAcceptProps {
   token: string;
