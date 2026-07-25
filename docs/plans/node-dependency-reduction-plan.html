@@ -1,0 +1,2119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="A staged plan for reducing direct and transitive Node package dependencies in Life Admin."
+    />
+    <title>Life Admin — Node Dependency Reduction Plan</title>
+    <style>
+      :root {
+        --paper: #f4efe4;
+        --paper-bright: #fffdf7;
+        --ink: #18201d;
+        --muted: #66706a;
+        --line: #c9c1b2;
+        --line-dark: #8f897f;
+        --accent: #d84b2f;
+        --accent-dark: #9f2e1e;
+        --green: #2e7153;
+        --green-bg: #dcebdd;
+        --amber: #8b5d0d;
+        --amber-bg: #f4e4b8;
+        --red: #9d3025;
+        --red-bg: #f0d5cc;
+        --blue: #255d76;
+        --blue-bg: #d9e9ec;
+        --shadow: 0 18px 55px rgba(55, 45, 34, 0.12);
+        --radius: 3px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(rgba(74, 64, 48, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(74, 64, 48, 0.035) 1px, transparent 1px),
+          var(--paper);
+        background-size: 28px 28px;
+        font-family: "Aptos", "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.3;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
+        z-index: 10;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .page-shell {
+        width: min(1220px, calc(100% - 32px));
+        margin: 24px auto 80px;
+        background: var(--paper-bright);
+        border: 1px solid var(--line-dark);
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+
+      .page-shell::after {
+        content: "DEPENDENCY AUDIT • 24 JUL 2026";
+        position: absolute;
+        right: -42px;
+        top: 218px;
+        transform: rotate(90deg);
+        transform-origin: center;
+        color: var(--line-dark);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+      }
+
+      .masthead {
+        min-height: 430px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        border-bottom: 2px solid var(--ink);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .masthead::before {
+        content: "";
+        position: absolute;
+        width: 330px;
+        height: 330px;
+        border: 76px solid var(--accent);
+        border-radius: 50%;
+        right: -128px;
+        bottom: -188px;
+        opacity: 0.94;
+      }
+
+      .masthead-main {
+        padding: 52px 54px 46px;
+        border-right: 1px solid var(--line);
+        position: relative;
+        z-index: 1;
+      }
+
+      .kicker {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent-dark);
+      }
+
+      .kicker::before {
+        content: "";
+        display: block;
+        width: 42px;
+        height: 4px;
+        background: var(--accent);
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      h1 {
+        max-width: 760px;
+        margin: 26px 0 20px;
+        font-size: clamp(48px, 7vw, 92px);
+        font-weight: 500;
+        letter-spacing: -0.058em;
+        line-height: 0.89;
+      }
+
+      h1 span {
+        color: var(--accent);
+        font-style: italic;
+      }
+
+      .lede {
+        max-width: 710px;
+        margin: 0;
+        color: #48524d;
+        font-size: 18px;
+      }
+
+      .masthead-side {
+        padding: 52px 42px 140px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .stamp {
+        display: inline-block;
+        padding: 8px 11px 6px;
+        border: 2px solid var(--accent);
+        color: var(--accent-dark);
+        font-family: Consolas, "Courier New", monospace;
+        font-weight: 800;
+        font-size: 13px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        transform: rotate(-2deg);
+      }
+
+      .meta-list {
+        margin: 32px 0 0;
+        padding: 0;
+        list-style: none;
+        border-top: 1px solid var(--line-dark);
+      }
+
+      .meta-list li {
+        display: grid;
+        grid-template-columns: 112px 1fr;
+        gap: 14px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+      }
+
+      .meta-list strong {
+        font-family: Consolas, "Courier New", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .section {
+        padding: 54px;
+        border-bottom: 1px solid var(--line-dark);
+      }
+
+      .section-heading {
+        display: grid;
+        grid-template-columns: 84px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+        margin-bottom: 34px;
+      }
+
+      .section-number {
+        display: block;
+        color: var(--accent);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 58px;
+        font-style: italic;
+        line-height: 0.85;
+      }
+
+      .section-heading h2 {
+        margin: -5px 0 7px;
+        font-size: clamp(31px, 4.2vw, 51px);
+        font-weight: 500;
+        letter-spacing: -0.035em;
+        line-height: 1;
+      }
+
+      .section-heading p {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border: 1px solid var(--line-dark);
+      }
+
+      .metric {
+        min-height: 178px;
+        padding: 24px 22px;
+        border-right: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.42);
+      }
+
+      .metric:last-child {
+        border-right: 0;
+      }
+
+      .metric-value {
+        display: block;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 52px;
+        line-height: 1;
+        letter-spacing: -0.045em;
+      }
+
+      .metric-value small {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 15px;
+        letter-spacing: 0;
+      }
+
+      .metric-label {
+        display: block;
+        margin-top: 12px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .metric-note {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .recommendation {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 26px;
+        align-items: center;
+        margin-top: 24px;
+        padding: 25px 26px;
+        background: var(--ink);
+        color: #fffaf0;
+      }
+
+      .recommendation h3 {
+        margin: 0 0 7px;
+        font-size: 24px;
+      }
+
+      .recommendation p {
+        margin: 0;
+        color: #c9d0cc;
+      }
+
+      .recommendation .delta {
+        min-width: 138px;
+        color: #fff;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 38px;
+        font-style: italic;
+        text-align: right;
+      }
+
+      .recommendation .delta small {
+        display: block;
+        color: #aab4af;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 10px;
+        font-style: normal;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .baseline {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 24px;
+      }
+
+      .baseline-item {
+        padding: 17px 18px;
+        border: 1px solid var(--line);
+      }
+
+      .baseline-item strong {
+        display: block;
+        margin-bottom: 5px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .baseline-item span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .controls {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        margin: 0 -54px 26px;
+        padding: 12px 54px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line-dark);
+        background: rgba(255, 253, 247, 0.95);
+        backdrop-filter: blur(9px);
+      }
+
+      .controls-label {
+        margin-right: 7px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .filter-button {
+        border: 1px solid var(--line-dark);
+        border-radius: 999px;
+        padding: 7px 12px 6px;
+        background: transparent;
+        color: var(--ink);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .filter-button:hover,
+      .filter-button:focus-visible {
+        border-color: var(--accent);
+        outline: 0;
+      }
+
+      .filter-button[aria-pressed="true"] {
+        border-color: var(--ink);
+        background: var(--ink);
+        color: white;
+      }
+
+      .search {
+        min-width: 190px;
+        margin-left: auto;
+        padding: 7px 12px 6px;
+        border: 1px solid var(--line-dark);
+        border-radius: 999px;
+        background: white;
+        color: var(--ink);
+        font-size: 12px;
+      }
+
+      .search:focus {
+        border-color: var(--accent);
+        outline: 2px solid rgba(216, 75, 47, 0.18);
+      }
+
+      .candidate-list {
+        display: grid;
+        gap: 18px;
+      }
+
+      .candidate {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        border: 1px solid var(--line-dark);
+        background: #fffefa;
+        transition:
+          transform 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .candidate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(55, 45, 34, 0.08);
+      }
+
+      .candidate[hidden] {
+        display: none;
+      }
+
+      .candidate-rail {
+        padding: 21px 19px;
+        border-right: 1px solid var(--line);
+      }
+
+      .risk {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 8px;
+        border-radius: 999px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .risk::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .risk-low {
+        color: var(--green);
+        background: var(--green-bg);
+      }
+
+      .risk-medium {
+        color: var(--amber);
+        background: var(--amber-bg);
+      }
+
+      .risk-high {
+        color: var(--red);
+        background: var(--red-bg);
+      }
+
+      .disposition {
+        display: block;
+        margin-top: 16px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .savings {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 20px;
+        border-top: 1px solid var(--line);
+      }
+
+      .saving {
+        padding-top: 11px;
+      }
+
+      .saving + .saving {
+        padding-left: 13px;
+        border-left: 1px solid var(--line);
+      }
+
+      .saving strong {
+        display: block;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 27px;
+        line-height: 1;
+      }
+
+      .saving span {
+        color: var(--muted);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 9px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .candidate-body {
+        padding: 22px 25px 23px;
+      }
+
+      .candidate-topline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        align-items: baseline;
+      }
+
+      .candidate h3 {
+        margin: 0;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 20px;
+        letter-spacing: -0.02em;
+      }
+
+      .candidate .reason {
+        margin: 8px 0 16px;
+        color: #4e5852;
+      }
+
+      .tag {
+        padding: 3px 7px;
+        background: var(--blue-bg);
+        color: var(--blue);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .candidate-details {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 24px;
+        padding-top: 15px;
+        border-top: 1px dashed var(--line);
+      }
+
+      .candidate-details h4 {
+        margin: 0 0 7px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .candidate-details p,
+      .candidate-details ul {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .candidate-details ul {
+        padding-left: 18px;
+      }
+
+      .candidate-details li + li {
+        margin-top: 4px;
+      }
+
+      .empty-state {
+        display: none;
+        padding: 48px;
+        border: 1px dashed var(--line-dark);
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty-state.visible {
+        display: block;
+      }
+
+      .sequence {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .phase {
+        padding: 25px;
+        border: 1px solid var(--line-dark);
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .phase:first-child {
+        grid-column: 1 / -1;
+        background: var(--green-bg);
+        border-color: #75a289;
+      }
+
+      .phase-label {
+        font-family: Consolas, "Courier New", monospace;
+        color: var(--accent-dark);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .phase h3 {
+        margin: 8px 0 10px;
+        font-size: 27px;
+        line-height: 1.1;
+      }
+
+      .phase p {
+        margin: 0 0 13px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .phase ol,
+      .phase ul {
+        margin: 0;
+        padding-left: 20px;
+        font-size: 14px;
+      }
+
+      .phase li + li {
+        margin-top: 7px;
+      }
+
+      .gate {
+        margin-top: 18px;
+        padding: 12px 14px;
+        border-left: 4px solid var(--accent);
+        background: rgba(255, 255, 255, 0.64);
+        font-size: 13px;
+      }
+
+      code {
+        padding: 0.08em 0.34em;
+        border: 1px solid #d8d1c5;
+        border-radius: 2px;
+        background: #f4f0e8;
+        color: #303b36;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.9em;
+      }
+
+      .validation-grid {
+        display: grid;
+        grid-template-columns: 0.75fr 1.25fr;
+        border: 1px solid var(--line-dark);
+      }
+
+      .validation-grid > div {
+        padding: 25px;
+      }
+
+      .validation-grid > div + div {
+        border-left: 1px solid var(--line);
+      }
+
+      .validation-grid h3 {
+        margin: 0 0 13px;
+        font-size: 25px;
+      }
+
+      .validation-grid ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .validation-grid li + li {
+        margin-top: 8px;
+      }
+
+      .command-list {
+        display: grid;
+        gap: 9px;
+      }
+
+      .command {
+        padding: 12px 14px;
+        border-left: 3px solid var(--ink);
+        background: #ede8dd;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+
+      .retain-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid var(--line-dark);
+        font-size: 14px;
+      }
+
+      .retain-table th,
+      .retain-table td {
+        padding: 13px 15px;
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .retain-table th {
+        background: var(--ink);
+        color: white;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .retain-table td:first-child {
+        width: 28%;
+        font-family: Consolas, "Courier New", monospace;
+        font-weight: 700;
+      }
+
+      .retain-table tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .questions {
+        background: var(--ink);
+        color: #fffdf7;
+      }
+
+      .questions .section-number {
+        color: #ff8067;
+      }
+
+      .questions .section-heading p {
+        color: #b7c0bb;
+      }
+
+      .question-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        margin: 0;
+        padding: 1px;
+        list-style: none;
+        background: #59635e;
+      }
+
+      .question-list li {
+        min-height: 128px;
+        padding: 22px;
+        background: var(--ink);
+      }
+
+      .question-list strong {
+        display: block;
+        margin-bottom: 7px;
+        color: #ff8067;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .question-list span {
+        color: #d4dbd7;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px 54px;
+        background: #111714;
+        color: #8f9a94;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .print-button {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 20;
+        padding: 10px 14px;
+        border: 1px solid var(--ink);
+        background: var(--accent);
+        color: white;
+        box-shadow: 4px 4px 0 var(--ink);
+        cursor: pointer;
+        font-weight: 800;
+      }
+
+      .print-button:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 5px 5px 0 var(--ink);
+      }
+
+      @media (max-width: 900px) {
+        .page-shell {
+          width: min(100% - 18px, 1220px);
+          margin-top: 9px;
+        }
+
+        .page-shell::after {
+          display: none;
+        }
+
+        .masthead {
+          grid-template-columns: 1fr;
+        }
+
+        .masthead-main {
+          padding: 38px 30px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .masthead-side {
+          padding: 30px 30px 120px;
+        }
+
+        .section {
+          padding: 40px 30px;
+        }
+
+        .summary-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .metric:nth-child(2) {
+          border-right: 0;
+        }
+
+        .metric:nth-child(-n + 2) {
+          border-bottom: 1px solid var(--line);
+        }
+
+        .controls {
+          margin-right: -30px;
+          margin-left: -30px;
+          padding-right: 30px;
+          padding-left: 30px;
+        }
+
+        .candidate {
+          grid-template-columns: 145px minmax(0, 1fr);
+        }
+
+        .candidate-details,
+        .sequence,
+        .validation-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .phase:first-child {
+          grid-column: auto;
+        }
+
+        .validation-grid > div + div {
+          border-top: 1px solid var(--line);
+          border-left: 0;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .section-heading {
+          grid-template-columns: 1fr;
+          gap: 11px;
+        }
+
+        .section-number {
+          font-size: 37px;
+        }
+
+        .summary-grid,
+        .baseline,
+        .question-list {
+          grid-template-columns: 1fr;
+        }
+
+        .metric,
+        .metric:nth-child(2) {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .recommendation {
+          grid-template-columns: 1fr;
+        }
+
+        .recommendation .delta {
+          text-align: left;
+        }
+
+        .controls {
+          position: static;
+        }
+
+        .search {
+          width: 100%;
+          margin: 4px 0 0;
+        }
+
+        .candidate {
+          grid-template-columns: 1fr;
+        }
+
+        .candidate-rail {
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .savings {
+          max-width: 260px;
+        }
+
+        .footer {
+          flex-direction: column;
+          padding: 20px 30px;
+        }
+
+        .print-button {
+          display: none;
+        }
+      }
+
+      @media print {
+        body {
+          background: white;
+          font-size: 11px;
+        }
+
+        body::before,
+        .controls,
+        .print-button {
+          display: none !important;
+        }
+
+        .page-shell {
+          width: 100%;
+          margin: 0;
+          border: 0;
+          box-shadow: none;
+        }
+
+        .page-shell::after {
+          display: none;
+        }
+
+        .masthead {
+          min-height: auto;
+        }
+
+        .masthead-main,
+        .masthead-side,
+        .section {
+          padding: 24px;
+        }
+
+        h1 {
+          font-size: 55px;
+        }
+
+        .candidate {
+          break-inside: avoid;
+        }
+
+        .candidate:hover {
+          transform: none;
+          box-shadow: none;
+        }
+
+        .questions,
+        .recommendation,
+        .retain-table th {
+          print-color-adjust: exact;
+          -webkit-print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="masthead">
+        <div class="masthead-main">
+          <div class="kicker">Life Admin / Technical review</div>
+          <h1>Node dependency <span>reduction</span> plan</h1>
+          <p class="lede">
+            A source-led audit of the current npm manifest and lockfile, with
+            each removal ranked by the chance of changing behaviour or
+            introducing defects. No application code or package configuration
+            was changed during this assessment.
+          </p>
+        </div>
+        <aside class="masthead-side" aria-label="Review metadata">
+          <div class="stamp">Plan only</div>
+          <ul class="meta-list">
+            <li><strong>Prepared</strong><span>24 July 2026</span></li>
+            <li><strong>Project</strong><span>React 19 + Vite + Convex</span></li>
+            <li><strong>Package tool</strong><span>npm / package-lock v3</span></li>
+            <li><strong>Scope</strong><span>Direct and transitive packages</span></li>
+            <li><strong>Method</strong><span>Imports, config, scripts, lock graph</span></li>
+          </ul>
+        </aside>
+      </header>
+
+      <section class="section" id="summary">
+        <div class="section-heading">
+          <span class="section-number">01</span>
+          <div>
+            <h2>Executive readout</h2>
+            <p>
+              Start with the six low-risk manifest removals. Five should
+              actually shrink the installed graph; the Prettier change only
+              cleans the root manifest because Convex still installs Prettier
+              transitively.
+            </p>
+          </div>
+        </div>
+
+        <div class="summary-grid" aria-label="Dependency baseline metrics">
+          <div class="metric">
+            <span class="metric-value">31</span>
+            <span class="metric-label">Direct declarations</span>
+            <span class="metric-note">13 runtime + 18 development</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">345</span>
+            <span class="metric-label">Installed lock entries</span>
+            <span class="metric-note">Current package-lock reachability</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">−6</span>
+            <span class="metric-label">Low-risk declarations</span>
+            <span class="metric-note">Recommended first implementation wave</span>
+          </div>
+          <div class="metric">
+            <span class="metric-value">−22 <small>est.</small></span>
+            <span class="metric-label">Installed entries</span>
+            <span class="metric-note">Estimated after a clean npm install</span>
+          </div>
+        </div>
+
+        <div class="recommendation">
+          <div>
+            <h3>Recommended target: 31 → 25 direct dependencies</h3>
+            <p>
+              Remove unused email rendering and obsolete router types; delete
+              the unused class-name helper and its two packages; retire the
+              unreferenced setup helper and dotenv; remove the redundant direct
+              Prettier declaration.
+            </p>
+          </div>
+          <div class="delta">
+            19%
+            <small>fewer direct entries</small>
+          </div>
+        </div>
+
+        <div class="baseline" aria-label="Current validation baseline">
+          <div class="baseline-item">
+            <strong>Application types</strong>
+            <span><code>tsc -p tsconfig.app.json</code> passes.</span>
+          </div>
+          <div class="baseline-item">
+            <strong>Convex types</strong>
+            <span><code>tsc -p convex/tsconfig.json</code> passes.</span>
+          </div>
+          <div class="baseline-item">
+            <strong>ESLint</strong>
+            <span>Passes with 0 errors and 9 existing warnings.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="candidates">
+        <div class="section-heading">
+          <span class="section-number">02</span>
+          <div>
+            <h2>Removal candidates</h2>
+            <p>
+              “Installed” savings are estimates from the current lockfile
+              dependency graph. A future npm resolution may differ slightly.
+              Use the controls to isolate the level of risk you want to review.
+            </p>
+          </div>
+        </div>
+
+        <div class="controls" aria-label="Candidate filters">
+          <span class="controls-label">Show</span>
+          <button class="filter-button" data-filter="all" aria-pressed="true">
+            All 15
+          </button>
+          <button class="filter-button" data-filter="low" aria-pressed="false">
+            Low risk
+          </button>
+          <button class="filter-button" data-filter="medium" aria-pressed="false">
+            Medium risk
+          </button>
+          <button class="filter-button" data-filter="high" aria-pressed="false">
+            High risk
+          </button>
+          <input
+            class="search"
+            id="candidate-search"
+            type="search"
+            placeholder="Search packages or work…"
+            aria-label="Search candidates"
+          />
+        </div>
+
+        <div class="candidate-list" id="candidate-list">
+          <article
+            class="candidate"
+            data-risk="low"
+            data-search="@react-email/render email resend unused html"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-low">Low risk</span>
+              <span class="disposition">Remove first</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>16</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>@react-email/render</h3>
+                <span class="tag">Unused optional peer</span>
+              </div>
+              <p class="reason">
+                No project file imports it. The only outgoing email is passed
+                to Resend as a ready-made HTML string, so the optional rendering
+                peer is not part of the live path.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Evidence</h4>
+                  <p>
+                    Zero source/config imports. <code>resend@6.0.2</code> lists
+                    it as an optional peer, not a required dependency.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Remove the direct manifest entry and refresh the lockfile.</li>
+                    <li>Run both TypeScript projects and a production build.</li>
+                    <li>Send one password-reset email in a non-production environment.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="low"
+            data-search="@types/react-router-dom obsolete types router v5 v7"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-low">Low risk</span>
+              <span class="disposition">Remove first</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>3</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>@types/react-router-dom</h3>
+                <span class="tag">Version mismatch</span>
+              </div>
+              <p class="reason">
+                The package contains React Router v5 community types while the
+                project uses <code>react-router-dom@7.18.1</code>, which ships
+                its own types. Keeping both can create misleading declarations.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Evidence</h4>
+                  <p>
+                    No direct type import exists. The application currently
+                    type-checks using the router package’s bundled v7 types.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Remove the package and refresh the lockfile.</li>
+                    <li>Run the application TypeScript check.</li>
+                    <li>Smoke-test dashboard, invite and reset-password routes.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="low"
+            data-search="clsx tailwind-merge cn class helper unused"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-low">Low risk</span>
+              <span class="disposition">Remove first</span>
+              <div class="savings">
+                <div class="saving"><strong>2</strong><span>Direct</span></div>
+                <div class="saving"><strong>2</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>clsx + tailwind-merge</h3>
+                <span class="tag">Dead helper</span>
+              </div>
+              <p class="reason">
+                Both packages are used only by the exported
+                <code>cn()</code> helper in <code>src/lib/utils.ts</code>; no
+                project file calls or imports that helper.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Evidence</h4>
+                  <p>
+                    One import site for each package, zero consumers of
+                    <code>cn()</code>. The date utilities in the same file are
+                    actively used and must remain.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Delete only the two imports and the <code>cn()</code> export.</li>
+                    <li>Preserve every date-formatting function in the file.</li>
+                    <li>Remove both packages, then run search, type and build checks.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="low"
+            data-search="dotenv setup setup.mjs environment unused onboarding"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-low">Low risk</span>
+              <span class="disposition">Remove first</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>1</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>dotenv</h3>
+                <span class="tag">Orphaned setup script</span>
+              </div>
+              <p class="reason">
+                It is imported only by <code>setup.mjs</code>. That helper is
+                not referenced by any package script, and its own header says it
+                can safely be deleted after Convex Auth setup.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Evidence</h4>
+                  <p>
+                    No runtime frontend or Convex function imports dotenv.
+                    Vite and Convex manage their own environment loading.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Confirm nobody still runs <code>node setup.mjs</code> manually.</li>
+                    <li>Delete the helper and remove dotenv.</li>
+                    <li>Re-test local startup and Convex authentication configuration.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="low"
+            data-search="prettier redundant direct manifest convex transitive"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-low">Low risk</span>
+              <span class="disposition">Manifest cleanup</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>0</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>prettier</h3>
+                <span class="tag">No installed saving</span>
+              </div>
+              <p class="reason">
+                There is no format script or Prettier config. Removing the root
+                declaration makes the manifest leaner, but
+                <code>convex@1.24.2</code> still installs the same package.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Evidence</h4>
+                  <p>
+                    No repository tooling invokes Prettier. <code>npm explain
+                    prettier</code> also shows it as a Convex dependency.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Decide whether root-level <code>npx prettier</code> is an undocumented workflow.</li>
+                    <li>Remove only the direct devDependency.</li>
+                    <li>Do not count this toward physical install-size savings.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="medium"
+            data-search="concurrently dev script process runner npm dev windows signals"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-medium">Medium risk</span>
+              <span class="disposition">Best second wave</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>20</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>concurrently</h3>
+                <span class="tag">Largest medium-risk return</span>
+              </div>
+              <p class="reason">
+                It exists only to run Vite and Convex together through
+                <code>npm run dev</code>. Replacing it removes a relatively
+                broad CLI subtree, but process shutdown behaviour is easy to
+                get wrong—especially on Windows.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Replacement choices</h4>
+                  <p>
+                    Either document two terminal commands, or add a small
+                    dependency-free Node runner using <code>child_process</code>.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Preserve one-command startup if that is a requirement.</li>
+                    <li>Forward stdout/stderr and terminate both child processes on Ctrl+C.</li>
+                    <li>Test clean start, frontend failure, backend failure and shutdown on Windows.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="medium"
+            data-search="autoprefixer postcss browsers css compatibility"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-medium">Medium risk</span>
+              <span class="disposition">Conditional</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>3</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>autoprefixer</h3>
+                <span class="tag">Browser-policy decision</span>
+              </div>
+              <p class="reason">
+                Removing it should not change modern CSS semantics, but it can
+                remove vendor-prefixed output needed by older browsers and
+                particular WebKit features.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Precondition</h4>
+                  <p>
+                    Define the supported browser matrix first. This is a policy
+                    choice, not an unused-dependency cleanup.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Remove the PostCSS plugin entry and package.</li>
+                    <li>Compare emitted CSS before and after.</li>
+                    <li>Test sticky header, backdrop blur, masks and form controls in target browsers.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="medium"
+            data-search="@types/node node path dirname process vite convex alias"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-medium">Medium risk</span>
+              <span class="disposition">Defer</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>2</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>@types/node</h3>
+                <span class="tag">Tooling types</span>
+              </div>
+              <p class="reason">
+                The Vite config imports <code>path</code> and uses
+                <code>__dirname</code>; Convex files use
+                <code>process.env</code>. The current source alias is unused by
+                application imports, but removing Node types requires careful
+                config and type-environment cleanup.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Potential route</h4>
+                  <p>
+                    Remove the unused <code>@</code> alias and its Node path
+                    import, then prove Convex’s type environment covers its own
+                    Node globals.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Update Vite, TypeScript and shadcn alias configuration together.</li>
+                    <li>Run all TypeScript and Convex generation checks from a clean install.</li>
+                    <li>Only proceed if the package is truly absent, not merely supplied transitively.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="medium"
+            data-search="resend sdk fetch email api password reset"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-medium">Medium risk</span>
+              <span class="disposition">Low return</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>1</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>resend</h3>
+                <span class="tag">Replace SDK with fetch</span>
+              </div>
+              <p class="reason">
+                The SDK is used in one Convex Node action and could be replaced
+                with a direct HTTP request. The saving is only one installed
+                package, while error-handling responsibility moves into the app.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Trade-off</h4>
+                  <p>
+                    Removes a small wrapper but gives up its request types,
+                    response parsing and API-change insulation.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Implement a typed fetch helper with authorization and JSON headers.</li>
+                    <li>Handle non-2xx responses, malformed payloads and network failures.</li>
+                    <li>Exercise a successful and failed password-reset email in staging.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="medium"
+            data-search="@vitejs/plugin-react vite react fast refresh hmr"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-medium">Medium risk</span>
+              <span class="disposition">Defer</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>1</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>@vitejs/plugin-react</h3>
+                <span class="tag">Developer behaviour</span>
+              </div>
+              <p class="reason">
+                Vite can transpile JSX without the plugin, but React Fast
+                Refresh and associated development transforms would be lost or
+                changed. One-package savings do not justify the degraded loop.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Evidence</h4>
+                  <p>
+                    It is configured once in <code>vite.config.ts</code> and is
+                    not part of the production application import graph.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Remove the plugin import and <code>react()</code> config entry.</li>
+                    <li>Test TSX compilation in development and production.</li>
+                    <li>Accept full reloads or provide another Fast Refresh mechanism.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="medium"
+            data-search="lucide-react icons svg accessibility admin dashboard"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-medium">Medium risk</span>
+              <span class="disposition">Low return</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>1</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>lucide-react</h3>
+                <span class="tag">17 distinct icons</span>
+              </div>
+              <p class="reason">
+                Only two files import it, but together they render 17 distinct
+                icons. Replacing them with maintained local SVG components is
+                feasible but creates visual and accessibility maintenance.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Trade-off</h4>
+                  <p>
+                    Tree-shaking already limits production code to selected
+                    icons. The main gain is one installed package, not 17.
+                  </p>
+                </div>
+                <div>
+                  <h4>Work and validation</h4>
+                  <ul>
+                    <li>Create a small, typed local icon module with consistent sizing/strokes.</li>
+                    <li>Preserve decorative <code>aria-hidden</code> behaviour and button labels.</li>
+                    <li>Visually compare dashboard and every admin state.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="high"
+            data-search="react-router-dom routes history deep links navigation invite password reset"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-high">High risk</span>
+              <span class="disposition">Retain</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>3</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>react-router-dom</h3>
+                <span class="tag">Core navigation</span>
+              </div>
+              <p class="reason">
+                It controls dashboard tabs, nested routes, redirects, URL
+                parameters, invitation links, password-reset links and browser
+                history. A home-grown router would save only three lock entries.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Why high risk</h4>
+                  <p>
+                    Deep-link refresh, back/forward navigation and parameter
+                    decoding are user-visible behaviours with security-adjacent
+                    auth flows.
+                  </p>
+                </div>
+                <div>
+                  <h4>If forced</h4>
+                  <ul>
+                    <li>Build a tested History API adapter and route matcher.</li>
+                    <li>Preserve replace-vs-push semantics and query strings.</li>
+                    <li>Add automated coverage for every route and unknown-path redirect.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="high"
+            data-search="sonner toast notifications accessibility errors success async"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-high">High risk</span>
+              <span class="disposition">Retain</span>
+              <div class="savings">
+                <div class="saving"><strong>1</strong><span>Direct</span></div>
+                <div class="saving"><strong>1</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>sonner</h3>
+                <span class="tag">14 source files</span>
+              </div>
+              <p class="reason">
+                Toast calls are spread across authentication, invites, resets,
+                documents, people, vehicles, homes, mobile contracts, profile
+                and admin flows. A replacement must preserve timing, stacking
+                and accessible announcements.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Why high risk</h4>
+                  <p>
+                    Most notifications report asynchronous success or failure;
+                    missing a toast can hide an operational error from the user.
+                  </p>
+                </div>
+                <div>
+                  <h4>If forced</h4>
+                  <ul>
+                    <li>Build a context/provider, imperative API and live-region UI.</li>
+                    <li>Migrate all 14 files in one controlled change.</li>
+                    <li>Test keyboard/screen-reader behaviour and concurrent messages.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="high"
+            data-search="tailwindcss postcss autoprefixer css styling rewrite classes"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-high">High risk</span>
+              <span class="disposition">Strategic only</span>
+              <div class="savings">
+                <div class="saving"><strong>3</strong><span>Direct</span></div>
+                <div class="saving"><strong>62</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>Tailwind toolchain</h3>
+                <span class="tag">tailwindcss + postcss + autoprefixer</span>
+              </div>
+              <p class="reason">
+                This offers a material transitive reduction, but nearly every
+                component encodes its layout, responsive behaviour, colour and
+                states in Tailwind classes. It is a UI rewrite, not a package
+                cleanup.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Why high risk</h4>
+                  <p>
+                    Visual parity across responsive widths, focus states,
+                    disabled states, modals and the admin interface would be
+                    difficult to prove without screenshot coverage.
+                  </p>
+                </div>
+                <div>
+                  <h4>If strategically approved</h4>
+                  <ul>
+                    <li>Create a page/state screenshot matrix before conversion.</li>
+                    <li>Move component-by-component to CSS modules or a small authored stylesheet.</li>
+                    <li>Remove the toolchain only after no Tailwind directives/classes remain.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="candidate"
+            data-risk="high"
+            data-search="eslint stack typescript-eslint globals hooks refresh quality static checks"
+          >
+            <div class="candidate-rail">
+              <span class="risk risk-high">High risk</span>
+              <span class="disposition">Retain safety net</span>
+              <div class="savings">
+                <div class="saving"><strong>6</strong><span>Direct</span></div>
+                <div class="saving"><strong>119</strong><span>Installed est.</span></div>
+              </div>
+            </div>
+            <div class="candidate-body">
+              <div class="candidate-topline">
+                <h3>ESLint stack</h3>
+                <span class="tag">Largest graph reduction</span>
+              </div>
+              <p class="reason">
+                Removing ESLint, TypeScript-ESLint, core rules, globals and the
+                two React plugins would sharply shrink development installs,
+                but it removes checks that TypeScript does not replace—most
+                importantly hooks correctness and refresh boundaries.
+              </p>
+              <div class="candidate-details">
+                <div>
+                  <h4>Current value</h4>
+                  <p>
+                    The audit baseline found nine actionable warnings and no
+                    errors. The configuration also enforces React hooks and
+                    typed lint rules.
+                  </p>
+                </div>
+                <div>
+                  <h4>If strategically approved</h4>
+                  <ul>
+                    <li>Retain both TypeScript checks as the minimum build gate.</li>
+                    <li>Document which lint protections are intentionally lost.</li>
+                    <li>Prefer simplifying rules/plugins over deleting the entire safety layer.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="empty-state" id="empty-state">
+          No candidate matches the current filter and search.
+        </div>
+      </section>
+
+      <section class="section" id="sequence">
+        <div class="section-heading">
+          <span class="section-number">03</span>
+          <div>
+            <h2>Proposed implementation sequence</h2>
+            <p>
+              Keep each wave independently reviewable. Refresh the lockfile and
+              verify behaviour after every wave so a regression has a narrow
+              cause.
+            </p>
+          </div>
+        </div>
+
+        <div class="sequence">
+          <article class="phase">
+            <span class="phase-label">Wave 1 / recommended</span>
+            <h3>Remove the low-risk set as one focused cleanup</h3>
+            <ol>
+              <li>
+                Remove <code>@react-email/render</code> and
+                <code>@types/react-router-dom</code>.
+              </li>
+              <li>
+                Delete the unused <code>cn()</code> helper; remove
+                <code>clsx</code> and <code>tailwind-merge</code>.
+              </li>
+              <li>
+                After confirming it is not manually used, delete
+                <code>setup.mjs</code> and remove <code>dotenv</code>.
+              </li>
+              <li>
+                Remove the redundant direct <code>prettier</code> entry, while
+                noting that the installed package remains through Convex.
+              </li>
+              <li>Regenerate <code>package-lock.json</code> with npm.</li>
+            </ol>
+            <div class="gate">
+              <strong>Exit gate:</strong> 25 direct declarations; an estimated
+              323 installed package entries; types, lint and production build
+              pass; email and route smoke tests pass.
+            </div>
+          </article>
+
+          <article class="phase">
+            <span class="phase-label">Wave 2 / optional</span>
+            <h3>Replace concurrently</h3>
+            <p>
+              This is the best next reduction by package count, provided the
+              one-command local workflow is preserved or intentionally retired.
+            </p>
+            <ul>
+              <li>Choose two terminals or a dependency-free Node process runner.</li>
+              <li>Test Ctrl+C and child failure handling on Windows.</li>
+              <li>Land separately from all runtime dependency work.</li>
+            </ul>
+            <div class="gate">
+              <strong>Exit gate:</strong> <code>npm run dev</code> has agreed
+              behaviour, both services start, and neither process is orphaned.
+            </div>
+          </article>
+
+          <article class="phase">
+            <span class="phase-label">Wave 3 / policy-led</span>
+            <h3>Only pursue conditional medium-risk items</h3>
+            <p>
+              Browser support, Node version and maintenance preferences must
+              drive these decisions.
+            </p>
+            <ul>
+              <li>Autoprefixer only after defining supported browsers.</li>
+              <li>Node types only after eliminating/retyping all Node-specific config use.</li>
+              <li>Resend or Lucide only if one-package savings justify local maintenance.</li>
+            </ul>
+            <div class="gate">
+              <strong>Exit gate:</strong> targeted functional and visual tests
+              exist before each replacement.
+            </div>
+          </article>
+
+          <article class="phase">
+            <span class="phase-label">Strategic track / separate project</span>
+            <h3>Do not mix high-risk rewrites with cleanup</h3>
+            <p>
+              Router, toast, Tailwind or lint removal should each be their own
+              explicitly approved initiative with a dedicated test plan.
+            </p>
+            <ul>
+              <li>Establish automated route and UI-state coverage first.</li>
+              <li>Set an objective threshold for the dependency reduction.</li>
+              <li>Use one migration branch and rollback point per subsystem.</li>
+            </ul>
+            <div class="gate">
+              <strong>Recommendation:</strong> retain these packages unless
+              install-graph size becomes more important than maintenance cost.
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="validation">
+        <div class="section-heading">
+          <span class="section-number">04</span>
+          <div>
+            <h2>Verification and acceptance</h2>
+            <p>
+              Dependency removals are complete only when a clean install works
+              and the affected user journeys still behave as before.
+            </p>
+          </div>
+        </div>
+
+        <div class="validation-grid">
+          <div>
+            <h3>Automated gates</h3>
+            <div class="command-list">
+              <div class="command">npm ci</div>
+              <div class="command">npx eslint .</div>
+              <div class="command">npx tsc -p tsconfig.app.json --noEmit</div>
+              <div class="command">npx tsc -p convex/tsconfig.json --noEmit</div>
+              <div class="command">npx convex dev --once</div>
+              <div class="command">npm run build</div>
+              <div class="command">npm ls --depth=0</div>
+            </div>
+          </div>
+          <div>
+            <h3>Behaviour checklist</h3>
+            <ul>
+              <li>Local Vite and Convex services start and stop cleanly.</li>
+              <li>Sign-in, sign-out and anonymous/authenticated states render.</li>
+              <li>Dashboard tabs support direct navigation and browser back/forward.</li>
+              <li>Invite links preserve the token and complete their intended flow.</li>
+              <li>Password-reset links validate, redirect and send an email.</li>
+              <li>Success and error toasts remain visible for CRUD operations.</li>
+              <li>Admin search, pagination, role changes and reset actions still work.</li>
+              <li>Desktop and narrow-screen layouts show no visual regression.</li>
+              <li>
+                The post-change lockfile contains no unexpected peer-dependency
+                warnings or duplicate major versions introduced by npm.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="retained">
+        <div class="section-heading">
+          <span class="section-number">05</span>
+          <div>
+            <h2>Dependencies to retain</h2>
+            <p>
+              These packages are central to the chosen architecture or are
+              required peers. Removing their direct declarations would either
+              fail to reduce the install or turn this into a platform rewrite.
+            </p>
+          </div>
+        </div>
+
+        <table class="retain-table">
+          <thead>
+            <tr>
+              <th>Package / group</th>
+              <th>Reason to retain</th>
+              <th>Relevant evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>@auth/core</td>
+              <td>Required peer of <code>@convex-dev/auth</code>.</td>
+              <td>
+                Removing the direct declaration does not remove the package;
+                npm would still need to resolve it. The root pin also keeps the
+                auth stack intentional.
+              </td>
+            </tr>
+            <tr>
+              <td>@convex-dev/auth</td>
+              <td>Implements authentication across frontend and backend.</td>
+              <td>
+                Imported across auth setup, schema, most protected Convex
+                functions and sign-in/out/reset UI.
+              </td>
+            </tr>
+            <tr>
+              <td>convex</td>
+              <td>Core backend, generated API, database and React client.</td>
+              <td>
+                Used by all backend modules and 18 frontend files; architectural
+                replacement is outside dependency cleanup.
+              </td>
+            </tr>
+            <tr>
+              <td>react + react-dom</td>
+              <td>Application rendering model.</td>
+              <td>Every UI component and the root renderer depend on React.</td>
+            </tr>
+            <tr>
+              <td>vite + typescript</td>
+              <td>Build, development server and static type safety.</td>
+              <td>
+                Both TypeScript projects currently pass; Vite owns the frontend
+                development and production build.
+              </td>
+            </tr>
+            <tr>
+              <td>React type packages</td>
+              <td>Required for authored React 19 TypeScript.</td>
+              <td>
+                <code>@types/react</code> and <code>@types/react-dom</code>
+                supply declarations for source and JSX.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section questions" id="questions">
+        <div class="section-heading">
+          <span class="section-number">06</span>
+          <div>
+            <h2>Questions before implementation</h2>
+            <p>
+              None blocks this plan. These answers determine whether the
+              medium- and high-risk waves should ever be scheduled.
+            </p>
+          </div>
+        </div>
+
+        <ol class="question-list">
+          <li>
+            <strong>Priority measure</strong>
+            <span>
+              Is the main objective fewer direct entries in
+              <code>package.json</code>, fewer installed lockfile packages, a
+              smaller production bundle, or all three?
+            </span>
+          </li>
+          <li>
+            <strong>Developer workflow</strong>
+            <span>
+              Must <code>npm run dev</code> continue to start Vite and Convex
+              together with one command?
+            </span>
+          </li>
+          <li>
+            <strong>Supported browsers</strong>
+            <span>
+              Which browser versions must be supported? This decides whether
+              removing Autoprefixer is acceptable.
+            </span>
+          </li>
+          <li>
+            <strong>Setup helper</strong>
+            <span>
+              Does anyone still run <code>node setup.mjs</code> manually during
+              onboarding, despite it not being referenced by package scripts?
+            </span>
+          </li>
+        </ol>
+      </section>
+
+      <footer class="footer">
+        <span>Life Admin / Node dependency reduction plan</span>
+        <span>Read-only assessment • current working tree inspected</span>
+      </footer>
+    </main>
+
+    <button class="print-button" type="button" onclick="window.print()">
+      Print / Save PDF
+    </button>
+
+    <script>
+      (() => {
+        const buttons = Array.from(
+          document.querySelectorAll(".filter-button"),
+        );
+        const cards = Array.from(document.querySelectorAll(".candidate"));
+        const search = document.getElementById("candidate-search");
+        const empty = document.getElementById("empty-state");
+        let activeRisk = "all";
+
+        const update = () => {
+          const query = search.value.trim().toLowerCase();
+          let visible = 0;
+
+          cards.forEach((card) => {
+            const riskMatch =
+              activeRisk === "all" || card.dataset.risk === activeRisk;
+            const haystack = `${card.dataset.search} ${card.textContent}`.toLowerCase();
+            const searchMatch = !query || haystack.includes(query);
+            card.hidden = !(riskMatch && searchMatch);
+            if (!card.hidden) visible += 1;
+          });
+
+          empty.classList.toggle("visible", visible === 0);
+        };
+
+        buttons.forEach((button) => {
+          button.addEventListener("click", () => {
+            activeRisk = button.dataset.filter;
+            buttons.forEach((item) =>
+              item.setAttribute(
+                "aria-pressed",
+                String(item === button),
+              ),
+            );
+            update();
+          });
+        });
+
+        search.addEventListener("input", update);
+      })();
+    </script>
+  </body>
+</html>
