@@ -1,10 +1,3 @@
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
 // Convert stored date to yyyy-mm-dd for HTML date input
 export function formatDateForInput(dateStr: string): string {
   if (!dateStr) return "";

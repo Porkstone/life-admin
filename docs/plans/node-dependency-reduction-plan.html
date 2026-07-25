@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="A staged plan for reducing direct and transitive Node package dependencies in Life Admin."
+      content="A supply-chain-risk-led plan and implementation record for reducing direct and transitive Node package dependencies in Life Admin."
     />
-    <title>Life Admin — Node Dependency Reduction Plan</title>
+    <title>Life Admin — Supply-Chain Dependency Risk Plan</title>
     <style>
       :root {
         --paper: #f4efe4;
@@ -80,7 +80,7 @@
       }
 
       .page-shell::after {
-        content: "DEPENDENCY AUDIT • 24 JUL 2026";
+      content: "SUPPLY-CHAIN REVIEW • 25 JUL 2026";
         position: absolute;
         right: -42px;
         top: 218px;
@@ -1013,23 +1013,24 @@
     <main class="page-shell">
       <header class="masthead">
         <div class="masthead-main">
-          <div class="kicker">Life Admin / Technical review</div>
-          <h1>Node dependency <span>reduction</span> plan</h1>
+          <div class="kicker">Life Admin / Supply-chain review</div>
+          <h1>Supply-chain <span>risk reduction</span> plan</h1>
           <p class="lede">
-            A source-led audit of the current npm manifest and lockfile, with
-            each removal ranked by the chance of changing behaviour or
-            introducing defects. No application code or package configuration
-            was changed during this assessment.
+            A source-led reduction of the npm trust surface. Package count is
+            used as a practical exposure signal: every direct maintainer,
+            transitive publisher and install-time script is another route into
+            development, CI or deployment. Behaviour risk remains explicit so
+            security improvements do not quietly become product regressions.
           </p>
         </div>
         <aside class="masthead-side" aria-label="Review metadata">
-          <div class="stamp">Plan only</div>
+          <div class="stamp">Changes applied</div>
           <ul class="meta-list">
-            <li><strong>Prepared</strong><span>24 July 2026</span></li>
+            <li><strong>Updated</strong><span>25 July 2026</span></li>
             <li><strong>Project</strong><span>React 19 + Vite + Convex</span></li>
             <li><strong>Package tool</strong><span>npm / package-lock v3</span></li>
-            <li><strong>Scope</strong><span>Direct and transitive packages</span></li>
-            <li><strong>Method</strong><span>Imports, config, scripts, lock graph</span></li>
+            <li><strong>Priority</strong><span>Supply-chain attack reduction</span></li>
+            <li><strong>Browsers</strong><span>Current Chrome + Safari</span></li>
           </ul>
         </aside>
       </header>
@@ -1038,68 +1039,81 @@
         <div class="section-heading">
           <span class="section-number">01</span>
           <div>
-            <h2>Executive readout</h2>
+            <h2>Security outcome</h2>
             <p>
-              Start with the six low-risk manifest removals. Five should
-              actually shrink the installed graph; the Prettier change only
-              cleans the root manifest because Convex still installs Prettier
-              transitively.
+              The approved cleanup is complete. Seven direct trust
+              relationships were removed, along with 42 entries from the old
+              lock graph. npm resolved two new platform-support entries during
+              the refresh, leaving a net reduction of 40. Prettier is no longer
+              direct but remains installed through Convex.
             </p>
           </div>
         </div>
 
         <div class="summary-grid" aria-label="Dependency baseline metrics">
           <div class="metric">
-            <span class="metric-value">31</span>
-            <span class="metric-label">Direct declarations</span>
-            <span class="metric-note">13 runtime + 18 development</span>
+            <span class="metric-value">24</span>
+            <span class="metric-label">Direct declarations now</span>
+            <span class="metric-note">Down from 31 before this change</span>
           </div>
           <div class="metric">
-            <span class="metric-value">345</span>
-            <span class="metric-label">Installed lock entries</span>
-            <span class="metric-note">Current package-lock reachability</span>
+            <span class="metric-value">305</span>
+            <span class="metric-label">Resolved lock entries now</span>
+            <span class="metric-note">Down from 345 before this change</span>
           </div>
           <div class="metric">
-            <span class="metric-value">−6</span>
-            <span class="metric-label">Low-risk declarations</span>
-            <span class="metric-note">Recommended first implementation wave</span>
+            <span class="metric-value">−7</span>
+            <span class="metric-label">Direct trust edges</span>
+            <span class="metric-note">Removed from package.json</span>
           </div>
           <div class="metric">
-            <span class="metric-value">−22 <small>est.</small></span>
-            <span class="metric-label">Installed entries</span>
-            <span class="metric-note">Estimated after a clean npm install</span>
+            <span class="metric-value">−40 <small>net</small></span>
+            <span class="metric-label">Resolved entries</span>
+            <span class="metric-note">42 removed, 2 newly resolved by npm</span>
           </div>
         </div>
 
         <div class="recommendation">
           <div>
-            <h3>Recommended target: 31 → 25 direct dependencies</h3>
+            <h3>Completed: 31 → 24 direct dependencies</h3>
             <p>
               Remove unused email rendering and obsolete router types; delete
               the unused class-name helper and its two packages; retire the
               unreferenced setup helper and dotenv; remove the redundant direct
-              Prettier declaration.
+              Prettier declaration; retire the combined local dev runner and
+              its CLI dependency tree.
             </p>
           </div>
           <div class="delta">
-            19%
+            23%
             <small>fewer direct entries</small>
           </div>
         </div>
 
-        <div class="baseline" aria-label="Current validation baseline">
+        <div class="baseline" aria-label="Supply-chain decision principles">
           <div class="baseline-item">
-            <strong>Application types</strong>
-            <span><code>tsc -p tsconfig.app.json</code> passes.</span>
+            <strong>Direct trust</strong>
+            <span>Remove packages with no live purpose before adding compensating controls.</span>
           </div>
           <div class="baseline-item">
-            <strong>Convex types</strong>
-            <span><code>tsc -p convex/tsconfig.json</code> passes.</span>
+            <strong>Build exposure</strong>
+            <span>Development packages still execute in developer and deployment environments.</span>
           </div>
           <div class="baseline-item">
-            <strong>ESLint</strong>
-            <span>Passes with 0 errors and 9 existing warnings.</span>
+            <strong>Graph reality</strong>
+            <span>Judge the resolved lockfile, not only the shorter root manifest.</span>
           </div>
+        </div>
+
+        <div class="gate">
+          <strong>Known advisory to triage:</strong>
+          <code>npm audit</code> reports two high-severity findings representing
+          the same React Router advisory
+          (<code>GHSA-qwww-vcr4-c8h2</code>). The advisory is titled for RSC
+          Mode, while this project uses a client-side
+          <code>BrowserRouter</code>; reachability is therefore unconfirmed,
+          not dismissed. npm currently proposes a downgrade to 7.11.0, so do
+          not run an automatic fix without route and auth-link regression tests.
         </div>
       </section>
 
@@ -1109,9 +1123,10 @@
           <div>
             <h2>Removal candidates</h2>
             <p>
-              “Installed” savings are estimates from the current lockfile
-              dependency graph. A future npm resolution may differ slightly.
-              Use the controls to isolate the level of risk you want to review.
+              Completed removals remain visible as an audit record. Remaining
+              candidates are ordered by supply-chain exposure reduction, then
+              discounted for replacement complexity and behaviour risk. Use the
+              controls to isolate the level of risk you want to review.
             </p>
           </div>
         </div>
@@ -1147,7 +1162,7 @@
           >
             <div class="candidate-rail">
               <span class="risk risk-low">Low risk</span>
-              <span class="disposition">Remove first</span>
+              <span class="disposition">Removed 25 Jul</span>
               <div class="savings">
                 <div class="saving"><strong>1</strong><span>Direct</span></div>
                 <div class="saving"><strong>16</strong><span>Installed est.</span></div>
@@ -1190,7 +1205,7 @@
           >
             <div class="candidate-rail">
               <span class="risk risk-low">Low risk</span>
-              <span class="disposition">Remove first</span>
+              <span class="disposition">Removed 25 Jul</span>
               <div class="savings">
                 <div class="saving"><strong>1</strong><span>Direct</span></div>
                 <div class="saving"><strong>3</strong><span>Installed est.</span></div>
@@ -1233,7 +1248,7 @@
           >
             <div class="candidate-rail">
               <span class="risk risk-low">Low risk</span>
-              <span class="disposition">Remove first</span>
+              <span class="disposition">Removed 25 Jul</span>
               <div class="savings">
                 <div class="saving"><strong>2</strong><span>Direct</span></div>
                 <div class="saving"><strong>2</strong><span>Installed est.</span></div>
@@ -1277,7 +1292,7 @@
           >
             <div class="candidate-rail">
               <span class="risk risk-low">Low risk</span>
-              <span class="disposition">Remove first</span>
+              <span class="disposition">Removed 25 Jul</span>
               <div class="savings">
                 <div class="saving"><strong>1</strong><span>Direct</span></div>
                 <div class="saving"><strong>1</strong><span>Installed est.</span></div>
@@ -1320,7 +1335,7 @@
           >
             <div class="candidate-rail">
               <span class="risk risk-low">Low risk</span>
-              <span class="disposition">Manifest cleanup</span>
+              <span class="disposition">Direct entry removed</span>
               <div class="savings">
                 <div class="saving"><strong>1</strong><span>Direct</span></div>
                 <div class="saving"><strong>0</strong><span>Installed est.</span></div>
@@ -1358,12 +1373,12 @@
 
           <article
             class="candidate"
-            data-risk="medium"
+            data-risk="low"
             data-search="concurrently dev script process runner npm dev windows signals"
           >
             <div class="candidate-rail">
-              <span class="risk risk-medium">Medium risk</span>
-              <span class="disposition">Best second wave</span>
+              <span class="risk risk-low">Low risk</span>
+              <span class="disposition">Removed 25 Jul</span>
               <div class="savings">
                 <div class="saving"><strong>1</strong><span>Direct</span></div>
                 <div class="saving"><strong>20</strong><span>Installed est.</span></div>
@@ -1372,28 +1387,29 @@
             <div class="candidate-body">
               <div class="candidate-topline">
                 <h3>concurrently</h3>
-                <span class="tag">Largest medium-risk return</span>
+                <span class="tag">Deployment-first decision</span>
               </div>
               <p class="reason">
-                It exists only to run Vite and Convex together through
-                <code>npm run dev</code>. Replacing it removes a relatively
-                broad CLI subtree, but process shutdown behaviour is easy to
-                get wrong—especially on Windows.
+                It existed only to run Vite and Convex together through
+                <code>npm run dev</code>. The project now uses a
+                deployment-first test workflow, so preserving a combined local
+                process supervisor is not a requirement.
               </p>
               <div class="candidate-details">
                 <div>
-                  <h4>Replacement choices</h4>
+                  <h4>Implemented workflow</h4>
                   <p>
-                    Either document two terminal commands, or add a small
-                    dependency-free Node runner using <code>child_process</code>.
+                    The combined script was removed. Separate
+                    <code>dev:frontend</code> and <code>dev:backend</code>
+                    commands remain for occasional diagnosis.
                   </p>
                 </div>
                 <div>
                   <h4>Work and validation</h4>
                   <ul>
-                    <li>Preserve one-command startup if that is a requirement.</li>
-                    <li>Forward stdout/stderr and terminate both child processes on Ctrl+C.</li>
-                    <li>Test clean start, frontend failure, backend failure and shutdown on Windows.</li>
+                    <li>Remove the root <code>dev</code> script and concurrently.</li>
+                    <li>Document the deployment-first workflow in the README.</li>
+                    <li>Retain separate local commands without another orchestration package.</li>
                   </ul>
                 </div>
               </div>
@@ -1419,16 +1435,17 @@
                 <span class="tag">Browser-policy decision</span>
               </div>
               <p class="reason">
-                Removing it should not change modern CSS semantics, but it can
-                remove vendor-prefixed output needed by older browsers and
-                particular WebKit features.
+                Only current Chrome and Safari are supported, which narrows the
+                compatibility risk. Safari still makes WebKit-specific output
+                relevant, so removal needs an emitted-CSS comparison rather
+                than an assumption.
               </p>
               <div class="candidate-details">
                 <div>
-                  <h4>Precondition</h4>
+                  <h4>Recorded browser scope</h4>
                   <p>
-                    Define the supported browser matrix first. This is a policy
-                    choice, not an unused-dependency cleanup.
+                    Current Google Chrome and Apple Safari only. Other browsers
+                    are outside the supported test matrix.
                   </p>
                 </div>
                 <div>
@@ -1621,11 +1638,11 @@
           <article
             class="candidate"
             data-risk="high"
-            data-search="react-router-dom routes history deep links navigation invite password reset"
+            data-search="react-router-dom routes history deep links navigation invite password reset GHSA-qwww-vcr4-c8h2 audit advisory"
           >
             <div class="candidate-rail">
               <span class="risk risk-high">High risk</span>
-              <span class="disposition">Retain</span>
+              <span class="disposition">Triage advisory</span>
               <div class="savings">
                 <div class="saving"><strong>1</strong><span>Direct</span></div>
                 <div class="saving"><strong>3</strong><span>Installed est.</span></div>
@@ -1640,6 +1657,8 @@
                 It controls dashboard tabs, nested routes, redirects, URL
                 parameters, invitation links, password-reset links and browser
                 history. A home-grown router would save only three lock entries.
+                Separately, npm audit currently flags its React Router dependency
+                for <code>GHSA-qwww-vcr4-c8h2</code>.
               </p>
               <div class="candidate-details">
                 <div>
@@ -1651,11 +1670,11 @@
                   </p>
                 </div>
                 <div>
-                  <h4>If forced</h4>
+                  <h4>Required next action</h4>
                   <ul>
-                    <li>Build a tested History API adapter and route matcher.</li>
-                    <li>Preserve replace-vs-push semantics and query strings.</li>
-                    <li>Add automated coverage for every route and unknown-path redirect.</li>
+                    <li>Confirm whether the RSC-mode advisory is reachable in this client-only setup.</li>
+                    <li>Identify a fixed supported version; do not blindly accept npm’s downgrade.</li>
+                    <li>Regression-test dashboard, invite, reset and browser-history routes.</li>
                   </ul>
                 </div>
               </div>
@@ -1806,19 +1825,19 @@
         <div class="section-heading">
           <span class="section-number">03</span>
           <div>
-            <h2>Proposed implementation sequence</h2>
+            <h2>Implementation record and next sequence</h2>
             <p>
-              Keep each wave independently reviewable. Refresh the lockfile and
-              verify behaviour after every wave so a regression has a narrow
-              cause.
+              The approved wave is recorded below. Future work should prioritise
+              real reductions in code fetched or executed during install and
+              deploy—not cosmetic manifest changes.
             </p>
           </div>
         </div>
 
         <div class="sequence">
           <article class="phase">
-            <span class="phase-label">Wave 1 / recommended</span>
-            <h3>Remove the low-risk set as one focused cleanup</h3>
+            <span class="phase-label">Completed / 25 July 2026</span>
+            <h3>Approved dependency cleanup applied</h3>
             <ol>
               <li>
                 Remove <code>@react-email/render</code> and
@@ -1836,30 +1855,40 @@
                 Remove the redundant direct <code>prettier</code> entry, while
                 noting that the installed package remains through Convex.
               </li>
-              <li>Regenerate <code>package-lock.json</code> with npm.</li>
+              <li>
+                Remove the combined <code>dev</code> script and
+                <code>concurrently</code>; retain separate frontend/backend
+                commands for occasional diagnosis.
+              </li>
+              <li>
+                Refresh and prune the lock graph with lifecycle scripts disabled.
+              </li>
             </ol>
             <div class="gate">
-              <strong>Exit gate:</strong> 25 direct declarations; an estimated
-              323 installed package entries; types, lint and production build
-              pass; email and route smoke tests pass.
+              <strong>Recorded result:</strong> 24 direct declarations and 305
+              lock entries. Seven direct entries and 42 old lock entries were
+              removed; two platform-support entries were newly resolved by npm.
+              A clean install with lifecycle scripts disabled, both TypeScript
+              checks, ESLint and the production build all pass.
             </div>
           </article>
 
           <article class="phase">
-            <span class="phase-label">Wave 2 / optional</span>
-            <h3>Replace concurrently</h3>
+            <span class="phase-label">Wave 2 / supply-chain controls</span>
+            <h3>Harden how dependencies enter deployment</h3>
             <p>
-              This is the best next reduction by package count, provided the
-              one-command local workflow is preserved or intentionally retired.
+              Package removal reduces exposure; deterministic and reviewable
+              installation controls the packages that must remain.
             </p>
             <ul>
-              <li>Choose two terminals or a dependency-free Node process runner.</li>
-              <li>Test Ctrl+C and child failure handling on Windows.</li>
-              <li>Land separately from all runtime dependency work.</li>
+              <li>Use committed lockfiles and <code>npm ci</code> in CI/deployment.</li>
+              <li>Evaluate <code>--ignore-scripts</code> as the default install policy.</li>
+              <li>Review lockfile changes as security-sensitive code changes.</li>
+              <li>Triage the React Router advisory before any automatic version change.</li>
             </ul>
             <div class="gate">
-              <strong>Exit gate:</strong> <code>npm run dev</code> has agreed
-              behaviour, both services start, and neither process is orphaned.
+              <strong>Exit gate:</strong> deployment succeeds from a clean,
+              immutable install and any required lifecycle scripts are explicitly documented.
             </div>
           </article>
 
@@ -1867,11 +1896,11 @@
             <span class="phase-label">Wave 3 / policy-led</span>
             <h3>Only pursue conditional medium-risk items</h3>
             <p>
-              Browser support, Node version and maintenance preferences must
-              drive these decisions.
+              Attack-surface reduction must justify the local replacement code
+              and the product behaviour it could disturb.
             </p>
             <ul>
-              <li>Autoprefixer only after defining supported browsers.</li>
+              <li>Reassess Autoprefixer against current Chrome and Safari output.</li>
               <li>Node types only after eliminating/retyping all Node-specific config use.</li>
               <li>Resend or Lucide only if one-package savings justify local maintenance.</li>
             </ul>
@@ -1890,7 +1919,7 @@
             </p>
             <ul>
               <li>Establish automated route and UI-state coverage first.</li>
-              <li>Set an objective threshold for the dependency reduction.</li>
+              <li>Set an objective supply-chain risk reduction and rollback threshold.</li>
               <li>Use one migration branch and rollback point per subsystem.</li>
             </ul>
             <div class="gate">
@@ -1917,7 +1946,8 @@
           <div>
             <h3>Automated gates</h3>
             <div class="command-list">
-              <div class="command">npm ci</div>
+              <div class="command">npm ci --ignore-scripts</div>
+              <div class="command">npm audit</div>
               <div class="command">npx eslint .</div>
               <div class="command">npx tsc -p tsconfig.app.json --noEmit</div>
               <div class="command">npx tsc -p convex/tsconfig.json --noEmit</div>
@@ -2022,50 +2052,50 @@
         <div class="section-heading">
           <span class="section-number">06</span>
           <div>
-            <h2>Questions before implementation</h2>
+            <h2>Decisions recorded</h2>
             <p>
-              None blocks this plan. These answers determine whether the
-              medium- and high-risk waves should ever be scheduled.
+              The previously open scope questions are now resolved. There are
+              no blocking questions for the completed dependency-removal wave.
             </p>
           </div>
         </div>
 
         <ol class="question-list">
           <li>
-            <strong>Priority measure</strong>
+            <strong>Primary objective</strong>
             <span>
-              Is the main objective fewer direct entries in
-              <code>package.json</code>, fewer installed lockfile packages, a
-              smaller production bundle, or all three?
+              Reduce supply-chain attack risk by shrinking the code and
+              publisher graph trusted during install, build and deployment.
             </span>
           </li>
           <li>
-            <strong>Developer workflow</strong>
+            <strong>Development workflow</strong>
             <span>
-              Must <code>npm run dev</code> continue to start Vite and Convex
-              together with one command?
+              Deployment-first testing is normal. Separate frontend and backend
+              commands are sufficient for rare local diagnosis.
             </span>
           </li>
           <li>
             <strong>Supported browsers</strong>
             <span>
-              Which browser versions must be supported? This decides whether
-              removing Autoprefixer is acceptable.
+              Current Chrome and Safari are supported. Other browsers are not
+              part of the test matrix.
             </span>
           </li>
           <li>
-            <strong>Setup helper</strong>
+            <strong>Approved removals</strong>
             <span>
-              Does anyone still run <code>node setup.mjs</code> manually during
-              onboarding, despite it not being referenced by package scripts?
+              Email rendering, obsolete router types, dead class helpers,
+              dotenv/setup, direct Prettier and concurrently were approved and
+              removed.
             </span>
           </li>
         </ol>
       </section>
 
       <footer class="footer">
-        <span>Life Admin / Node dependency reduction plan</span>
-        <span>Read-only assessment • current working tree inspected</span>
+        <span>Life Admin / Supply-chain dependency plan</span>
+        <span>Updated 25 Jul 2026 • approved removals applied</span>
       </footer>
     </main>
 
