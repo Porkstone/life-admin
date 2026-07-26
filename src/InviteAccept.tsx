@@ -45,7 +45,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
 
   if (!invite) {
     return (
-      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-sm">
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-xs">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-2">Invalid Invite</h2>
           <p className="text-gray-600">This invite link is not valid or has been deleted.</p>
@@ -56,7 +56,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
 
   if (invite.isExpired) {
     return (
-      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-sm">
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-xs">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-2">Expired Invite</h2>
           <p className="text-gray-600">This invite link has expired.</p>
@@ -70,7 +70,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
 
   if (invite.isUsed) {
     return (
-      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-sm">
+      <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-xs">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-yellow-600 mb-2">Invite Already Used</h2>
           <p className="text-gray-600">This invite link has already been accepted.</p>
@@ -87,7 +87,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
   if (!loggedInUser) {
     return (
       <div className="max-w-md mx-auto mt-8 space-y-6">
-        <div className="p-6 bg-white rounded-lg border shadow-sm">
+        <div className="p-6 bg-white rounded-lg border shadow-xs">
           <div className="text-center">
             <h2 className="text-xl font-semibold text-blue-600 mb-4">Sign In Required</h2>
             <p className="text-gray-600 mb-4">
@@ -99,7 +99,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
           </div>
         </div>
         
-        <div className="p-6 bg-white rounded-lg border shadow-sm">
+        <div className="p-6 bg-white rounded-lg border shadow-xs">
           <SignInForm />
         </div>
       </div>
@@ -107,7 +107,7 @@ export function InviteAccept({ token }: InviteAcceptProps) {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-sm">
+    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg border shadow-xs">
       <div className="text-center">
         <h2 className="text-xl font-semibold text-blue-600 mb-4">You're Invited!</h2>
         <p className="text-gray-600 mb-4">

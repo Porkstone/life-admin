@@ -119,7 +119,7 @@ export function AdminPanel() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Search loaded users"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-100"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-hidden transition focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-100"
             />
           </div>
           <p className="text-xs text-slate-500">
@@ -445,7 +445,7 @@ function Modal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose?.();
@@ -493,7 +493,7 @@ function PasswordField({
           minLength={8}
           maxLength={128}
           required
-          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-slate-950 outline-none transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-slate-950 outline-hidden transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100"
         />
         {onToggleVisibility && (
           <button

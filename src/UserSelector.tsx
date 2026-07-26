@@ -23,7 +23,7 @@ export function UserSelector({ selectedUserId, onUserChange }: UserSelectorProps
       <select
         value={selectedUserId || currentUser._id}
         onChange={(e) => onUserChange(e.target.value === currentUser._id ? null : e.target.value as Id<"users">)}
-        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 bg-white"
       >
         {accessibleUsers.map((user) => (
           <option key={user.userId} value={user.userId}>

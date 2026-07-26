@@ -85,7 +85,7 @@ export function InviteManager() {
 
       {/* Create Invite Form */}
       {showCreateForm && (
-        <div className="bg-white p-6 rounded-lg border shadow-sm">
+        <div className="bg-white p-6 rounded-lg border shadow-xs">
           <h3 className="text-lg font-semibold mb-4">Create Invite Link</h3>
           <form onSubmit={handleCreateInvite} className="space-y-4">
             <div>
@@ -120,7 +120,7 @@ export function InviteManager() {
               <select
                 value={expiresInDays}
                 onChange={(e) => setExpiresInDays(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               >
                 <option value={1}>1 day</option>
                 <option value={7}>7 days</option>
@@ -149,7 +149,7 @@ export function InviteManager() {
       )}
 
       {/* My Invites */}
-      <div className="bg-white p-6 rounded-lg border shadow-sm">
+      <div className="bg-white p-6 rounded-lg border shadow-xs">
         <h3 className="text-lg font-semibold mb-4">My Invite Links</h3>
         {myInvites.length === 0 ? (
           <p className="text-gray-500">No invites created yet</p>
@@ -208,7 +208,7 @@ export function InviteManager() {
       {sharedAccess && (
         <div className="grid md:grid-cols-2 gap-6">
           {/* People with access to my data */}
-          <div className="bg-white p-6 rounded-lg border shadow-sm">
+          <div className="bg-white p-6 rounded-lg border shadow-xs">
             <h3 className="text-lg font-semibold mb-4">People with access to my data</h3>
             {sharedAccess.sharedWithOthers.length === 0 ? (
               <p className="text-gray-500">No one has access to your data yet</p>
@@ -236,7 +236,7 @@ export function InviteManager() {
           </div>
 
           {/* Data I have access to */}
-          <div className="bg-white p-6 rounded-lg border shadow-sm">
+          <div className="bg-white p-6 rounded-lg border shadow-xs">
             <h3 className="text-lg font-semibold mb-4">Data I have access to</h3>
             {sharedAccess.sharedWithMe.length === 0 ? (
               <p className="text-gray-500">You don't have access to anyone else's data yet</p>

@@ -45,7 +45,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-20 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-start justify-center pt-20 z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Profile Settings</h2>
@@ -67,7 +67,7 @@ export function ProfileSettings({ onClose }: ProfileSettingsProps) {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter your name"
             />
           </div>

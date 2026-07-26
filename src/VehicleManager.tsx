@@ -248,7 +248,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
 
       {/* Vehicle Form */}
       {showForm && (
-        <div className="bg-white p-6 rounded-lg border shadow-sm">
+        <div className="bg-white p-6 rounded-lg border shadow-xs">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">
               {editingVehicle ? "Edit Vehicle" : "Add New Vehicle"}
@@ -271,7 +271,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.make}
                   onChange={(e) => setFormData({ ...formData, make: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="Toyota, Ford, BMW..."
                   required
                 />
@@ -285,7 +285,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.model}
                   onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="Camry, Focus, X3..."
                   required
                 />
@@ -299,7 +299,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="number"
                   value={formData.year}
                   onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   min="1900"
                   max={new Date().getFullYear() + 1}
                   required
@@ -316,7 +316,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.color}
                   onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="Red, Blue, Silver..."
                 />
               </div>
@@ -329,7 +329,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.licensePlate}
                   onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="ABC123"
                 />
               </div>
@@ -343,7 +343,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                 type="text"
                 value={formData.vin}
                 onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 placeholder="Vehicle Identification Number"
               />
             </div>
@@ -357,7 +357,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.registrationExpiry}
                   onChange={(e) => setFormData({ ...formData, registrationExpiry: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="DD-MM-YYYY"
                 />
               </div>
@@ -370,7 +370,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.insuranceExpiry}
                   onChange={(e) => setFormData({ ...formData, insuranceExpiry: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="DD-MM-YYYY"
                 />
               </div>
@@ -383,7 +383,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.motExpiry}
                   onChange={(e) => setFormData({ ...formData, motExpiry: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="DD-MM-YYYY"
                 />
               </div>
@@ -398,7 +398,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.serviceInterval}
                   onChange={(e) => setFormData({ ...formData, serviceInterval: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="6 months, 12 months, 10,000 miles..."
                 />
               </div>
@@ -411,7 +411,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.nextServiceDueDate}
                   onChange={(e) => setFormData({ ...formData, nextServiceDueDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="DD-MM-YYYY"
                 />
               </div>
@@ -426,7 +426,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   type="text"
                   value={formData.insuranceProvider}
                   onChange={(e) => setFormData({ ...formData, insuranceProvider: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="State Farm, Geico, Progressive..."
                 />
               </div>
@@ -438,7 +438,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                 <select
                   value={formData.insuredAt}
                   onChange={(e) => setFormData({ ...formData, insuredAt: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a home...</option>
                   {homes.map((home) => (
@@ -469,7 +469,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 rows={3}
                 placeholder="Additional notes about this vehicle..."
               />
@@ -497,7 +497,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
       {/* Vehicle List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {vehicles.map((vehicle) => (
-          <div key={vehicle._id} className="bg-white p-4 rounded-lg border shadow-sm">
+          <div key={vehicle._id} className="bg-white p-4 rounded-lg border shadow-xs">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <h3 className="font-semibold text-lg text-gray-900">

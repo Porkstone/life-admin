@@ -93,7 +93,7 @@ function DashboardShell() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm h-16 flex justify-between items-center border-b shadow-sm px-4">
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-xs h-16 flex justify-between items-center border-b shadow-xs px-4">
         <h2 className="text-xl font-semibold text-blue-600">Life Admin</h2>
         <Authenticated>
           <HeaderActions />
@@ -116,7 +116,7 @@ function InvitePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm h-16 flex justify-between items-center border-b shadow-sm px-4">
+      <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-xs h-16 flex justify-between items-center border-b shadow-xs px-4">
         <h2 className="text-xl font-semibold text-blue-600">Life Admin</h2>
         <Authenticated>
           <SignOutButton />
@@ -218,7 +218,7 @@ function Content() {
                   className={({ isActive }) =>
                     `flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? "bg-white text-blue-600 shadow-sm"
+                        ? "bg-white text-blue-600 shadow-xs"
                         : "text-gray-600 hover:text-gray-900"
                     }`
                   }
@@ -235,7 +235,7 @@ function Content() {
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-slate-950 text-white shadow-sm"
+                      ? "bg-slate-950 text-white shadow-xs"
                       : "text-gray-600 hover:text-gray-900"
                   }`
                 }

@@ -131,7 +131,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               value={formData.firstName}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -144,7 +144,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               value={formData.lastName}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -158,7 +158,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
             value={formData.relationship}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           >
             <option value="self">Self</option>
             <option value="spouse">Spouse/Partner</option>
@@ -180,7 +180,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               name="dateOfBirth"
               value={formData.dateOfBirth}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               placeholder="dd/mm/yyyy"
             />
             <p className="text-xs text-gray-500 mt-1">UK format (DD/MM/YYYY)</p>
@@ -194,7 +194,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -222,7 +222,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               name="drivingLicenseNumber"
               value={formData.drivingLicenseNumber}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -234,7 +234,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               name="drivingLicenseDate"
               value={formData.drivingLicenseDate}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               placeholder="dd/mm/yyyy"
             />
             <p className="text-xs text-gray-500 mt-1">UK format (DD/MM/YYYY)</p>
@@ -251,7 +251,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               name="passportNumber"
               value={formData.passportNumber}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -263,7 +263,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               name="passportExpiryDate"
               value={formData.passportExpiryDate}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               placeholder="dd/mm/yyyy"
             />
             <p className="text-xs text-gray-500 mt-1">UK format (DD/MM/YYYY)</p>
@@ -281,7 +281,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               value={formData.nationalInsuranceNumber}
               onChange={handleChange}
               placeholder="e.g., AB123456C"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -294,7 +294,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               value={formData.nhsNumber}
               onChange={handleChange}
               placeholder="e.g., 123 456 7890"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -308,7 +308,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
             value={formData.notes}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             placeholder="Any additional notes..."
           />
         </div>

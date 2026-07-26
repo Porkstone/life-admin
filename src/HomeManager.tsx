@@ -162,7 +162,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg border shadow-sm">
+    <div className="bg-white p-6 rounded-lg border shadow-xs">
       <h3 className="text-lg font-semibold mb-4">
         {home ? "Edit Home" : "Add New Home"}
       </h3>
@@ -178,7 +178,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.nickname}
               onChange={(e) => handleChange("nickname", e.target.value)}
               placeholder="e.g., Main Home, Holiday Home"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -190,7 +190,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
             <select
               value={formData.propertyType}
               onChange={(e) => handleChange("propertyType", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             >
               <option value="house">House</option>
               <option value="apartment">Apartment</option>
@@ -210,7 +210,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
             value={formData.address}
             onChange={(e) => handleChange("address", e.target.value)}
             placeholder="Street address"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
@@ -225,7 +225,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.city}
               onChange={(e) => handleChange("city", e.target.value)}
               placeholder="City"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -239,7 +239,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.state}
               onChange={(e) => handleChange("state", e.target.value)}
               placeholder="State or County"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -252,7 +252,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.postalCode}
               onChange={(e) => handleChange("postalCode", e.target.value)}
               placeholder="Postal code"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -267,7 +267,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.country}
               onChange={(e) => handleChange("country", e.target.value)}
               placeholder="Country"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -279,7 +279,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
             <select
               value={formData.ownership}
               onChange={(e) => handleChange("ownership", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             >
               <option value="owned">Owned</option>
               <option value="rented">Rented</option>
@@ -298,7 +298,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               type="date"
               value={formData.purchaseDate}
               onChange={(e) => handleChange("purchaseDate", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -311,7 +311,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.purchasePrice}
               onChange={(e) => handleChange("purchasePrice", e.target.value)}
               placeholder="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -326,7 +326,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.mortgageProvider}
               onChange={(e) => handleChange("mortgageProvider", e.target.value)}
               placeholder="Bank or lender"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -339,7 +339,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.mortgageBalance}
               onChange={(e) => handleChange("mortgageBalance", e.target.value)}
               placeholder="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -354,7 +354,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               value={formData.insuranceProvider}
               onChange={(e) => handleChange("insuranceProvider", e.target.value)}
               placeholder="Insurance company"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -366,7 +366,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
               type="date"
               value={formData.insuranceExpiry}
               onChange={(e) => handleChange("insuranceExpiry", e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -378,7 +378,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
           <select
             value={formData.councilTaxBand}
             onChange={(e) => handleChange("councilTaxBand", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select band</option>
             <option value="A">Band A</option>
@@ -401,7 +401,7 @@ function HomeForm({ home, onSubmit, onCancel }: HomeFormProps) {
             onChange={(e) => handleChange("notes", e.target.value)}
             placeholder="Additional notes about this property..."
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
@@ -465,7 +465,7 @@ function HomeCard({ home, onEdit, onDelete }: HomeCardProps) {
   const ownershipBadge = getOwnershipBadge(home.ownership);
 
   return (
-    <div className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white p-4 rounded-lg border shadow-xs hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{getPropertyIcon(home.propertyType)}</span>

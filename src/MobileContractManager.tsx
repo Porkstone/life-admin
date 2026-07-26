@@ -217,7 +217,7 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
                       <button
                         type="button"
                         onClick={() => handleCopyPassword(contract.accountPassword)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         aria-label={`Copy ${contract.provider} account password`}
                         title="Copy account password"
                       >
@@ -275,13 +275,13 @@ function IosToggle({ checked, onChange, ariaLabel, disabled = false }: IosToggle
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ${
+      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ${
         checked ? "bg-blue-600" : "bg-gray-300"
       }`}
     >
       <span
         aria-hidden="true"
-        className={`block h-6 w-6 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200 ease-out ${
+        className={`block h-6 w-6 rounded-full bg-white shadow-xs ring-1 ring-black/5 transition-transform duration-200 ease-out ${
           checked ? "translate-x-[22px]" : "translate-x-0.5"
         }`}
       />
@@ -366,7 +366,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
@@ -394,7 +394,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   required
                   value={formData.provider}
                   onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., EE, O2, Vodafone"
                 />
               </div>
@@ -408,7 +408,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   required
                   value={formData.phoneNumber}
                   onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., +44 7123 456789"
                 />
               </div>
@@ -423,7 +423,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   required
                   value={formData.monthlyCost}
                   onChange={(e) => setFormData({ ...formData, monthlyCost: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -435,7 +435,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   required
                   value={formData.contractType}
                   onChange={(e) => setFormData({ ...formData, contractType: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="pay_monthly">Pay Monthly</option>
                   <option value="pay_as_you_go">Pay As You Go</option>
@@ -451,7 +451,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   type="text"
                   value={formData.dataAllowance}
                   onChange={(e) => setFormData({ ...formData, dataAllowance: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., Unlimited, 50GB"
                 />
               </div>
@@ -463,7 +463,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                 <select
                   value={formData.registeredAt}
                   onChange={(e) => setFormData({ ...formData, registeredAt: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a home</option>
                   {homes?.map((home) => (
@@ -482,7 +482,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   type="date"
                   value={formData.contractStartDate}
                   onChange={(e) => setFormData({ ...formData, contractStartDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -494,7 +494,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   type="date"
                   value={formData.contractEndDate}
                   onChange={(e) => setFormData({ ...formData, contractEndDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -506,7 +506,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   type="text"
                   value={formData.accountUsername}
                   onChange={(e) => setFormData({ ...formData, accountUsername: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -518,7 +518,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                   type="password"
                   value={formData.accountPassword}
                   onChange={(e) => setFormData({ ...formData, accountPassword: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -531,7 +531,7 @@ function MobileContractForm({ contract, userId, onClose }: MobileContractFormPro
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 placeholder="Additional notes about this contract..."
               />
             </div>
