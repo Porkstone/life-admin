@@ -275,14 +275,14 @@ function IosToggle({ checked, onChange, ariaLabel, disabled = false }: IosToggle
       aria-label={ariaLabel}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ${
+      className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors duration-200 ease-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ${
         checked ? "bg-blue-600" : "bg-gray-300"
       }`}
     >
       <span
         aria-hidden="true"
-        className={`block h-6 w-6 rounded-full bg-white shadow-xs ring-1 ring-black/5 transition-transform duration-200 ease-out ${
-          checked ? "translate-x-[22px]" : "translate-x-0.5"
+        className={`block h-5 w-5 rounded-full bg-white shadow-xs ring-1 ring-black/5 transition-transform duration-200 ease-out ${
+          checked ? "translate-x-[18px]" : "translate-x-0.5"
         }`}
       />
     </button>
