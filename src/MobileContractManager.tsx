@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Id } from "../convex/_generated/dataModel";
 import { UserSelector } from "./UserSelector";
+import { Copy } from "lucide-react";
 
 interface MobileContractManagerProps {
   selectedUserId: Id<"users"> | null;
@@ -29,6 +30,18 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
   const handleCloseForm = () => {
     setShowForm(false);
     setEditingContract(null);
+  };
+
+  const handleCopyPassword = async (password?: string) => {
+    if (!password) return;
+
+    try {
+      await navigator.clipboard.writeText(password);
+      toast.success("Account password copied to clipboard");
+    } catch (error) {
+      toast.error("Could not copy the account password");
+      console.error(error);
+    }
   };
 
   const calculateDaysUntilEnd = (contractEndDate: string | undefined) => {
@@ -150,6 +163,21 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
                     <div className="flex justify-between">
                       <span className="text-sm text-gray-600">Registered At:</span>
                       <span className="text-sm font-medium">Home Address</span>
+                    </div>
+                  )}
+
+                  {contract.accountPassword && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Account Password:</span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyPassword(contract.accountPassword)}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        aria-label={`Copy ${contract.provider} account password`}
+                        title="Copy account password"
+                      >
+                        <Copy className="h-4 w-4" aria-hidden="true" />
+                      </button>
                     </div>
                   )}
 
