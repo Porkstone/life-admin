@@ -72,7 +72,35 @@ export const create = mutation({
     return await ctx.db.insert("mobileContracts", {
       userId,
       ...args,
+      archived: false,
     });
+  },
+});
+
+export const setArchived = mutation({
+  args: {
+    id: v.id("mobileContracts"),
+    archived: v.boolean(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const contract = await ctx.db.get(args.id);
+
+    if (!contract) {
+      throw new Error("Contract not found");
+    }
+
+    if (contract.userId !== userId) {
+      throw new Error("Access denied");
+    }
+
+    await ctx.db.patch(args.id, { archived: args.archived });
+    return null;
   },
 });
 

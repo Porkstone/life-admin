@@ -15,8 +15,12 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
   const loggedInUser = useQuery(api.auth.loggedInUser);
   const effectiveUserId = selectedUserId || loggedInUser?._id;
   const contracts = useQuery(api.mobileContracts.list, effectiveUserId ? { userId: effectiveUserId } : "skip");
+  const setContractArchived = useMutation(api.mobileContracts.setArchived);
   const [showForm, setShowForm] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [editingContract, setEditingContract] = useState<any>(null);
+  const [archivingContractId, setArchivingContractId] = useState<Id<"mobileContracts"> | null>(null);
+  const visibleContracts = contracts?.filter((contract) => showArchived || !contract.archived);
 
   if (!effectiveUserId) {
     return <div>Loading...</div>;
@@ -44,6 +48,20 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
     }
   };
 
+  const handleArchiveChange = async (id: Id<"mobileContracts">, archived: boolean) => {
+    setArchivingContractId(id);
+
+    try {
+      await setContractArchived({ id, archived });
+      toast.success(archived ? "Mobile contract archived" : "Mobile contract restored");
+    } catch (error) {
+      toast.error(archived ? "Could not archive the contract" : "Could not restore the contract");
+      console.error(error);
+    } finally {
+      setArchivingContractId(null);
+    }
+  };
+
   const calculateDaysUntilEnd = (contractEndDate: string | undefined) => {
     if (!contractEndDate) return null;
     
@@ -65,17 +83,27 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Mobile Contracts</h2>
           <p className="text-gray-600">Manage mobile phone contracts and accounts</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Add Contract
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2.5">
+            <span className="text-sm font-medium text-gray-700">Show Archived</span>
+            <IosToggle
+              checked={showArchived}
+              onChange={setShowArchived}
+              ariaLabel="Show archived mobile contracts"
+            />
+          </div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Add Contract
+          </button>
+        </div>
       </div>
 
       <UserSelector
@@ -99,22 +127,39 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
             Add Contract
           </button>
         </div>
+      ) : visibleContracts?.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+          <h3 className="text-lg font-medium text-gray-900">No active mobile contracts</h3>
+          <p className="mt-1 text-sm text-gray-600">Turn on Show Archived to view archived contracts.</p>
+        </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {contracts.map((contract) => {
+          {visibleContracts?.map((contract) => {
             const daysUntilEnd = calculateDaysUntilEnd(contract.contractEndDate);
             const isExpiringSoon = daysUntilEnd !== null && daysUntilEnd <= 30 && daysUntilEnd >= 0;
             const isExpired = daysUntilEnd !== null && daysUntilEnd < 0;
             
             return (
-              <div key={contract._id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div
+                key={contract._id}
+                className={`rounded-lg border p-6 transition-shadow hover:shadow-md ${
+                  contract.archived ? "border-gray-300 bg-gray-50" : "border-gray-200 bg-white"
+                }`}
+              >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       <span className="text-blue-600 font-semibold">📱</span>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{contract.provider}</h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-900">{contract.provider}</h3>
+                        {contract.archived && (
+                          <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-gray-600">
+                            Archived
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-gray-600">{contract.phoneNumber}</p>
                     </div>
                   </div>
@@ -182,10 +227,20 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
                   )}
 
                   {contract.notes && (
-                    <div className="pt-2 border-t border-gray-100">
+                    <div className="pt-2">
                       <p className="text-sm text-gray-600">{contract.notes}</p>
                     </div>
                   )}
+
+                  <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+                    <span className="text-sm font-medium text-gray-700">Archive</span>
+                    <IosToggle
+                      checked={Boolean(contract.archived)}
+                      onChange={(archived) => handleArchiveChange(contract._id, archived)}
+                      ariaLabel={`${contract.archived ? "Restore" : "Archive"} ${contract.provider} mobile contract`}
+                      disabled={archivingContractId === contract._id}
+                    />
+                  </div>
                 </div>
               </div>
             );
@@ -201,6 +256,36 @@ export function MobileContractManager({ selectedUserId, onUserChange }: MobileCo
         />
       )}
     </div>
+  );
+}
+
+interface IosToggleProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  ariaLabel: string;
+  disabled?: boolean;
+}
+
+function IosToggle({ checked, onChange, ariaLabel, disabled = false }: IosToggleProps) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60 ${
+        checked ? "bg-blue-600" : "bg-gray-300"
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={`block h-6 w-6 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform duration-200 ease-out ${
+          checked ? "translate-x-[22px]" : "translate-x-0.5"
+        }`}
+      />
+    </button>
   );
 }
 

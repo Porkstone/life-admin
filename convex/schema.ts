@@ -90,6 +90,7 @@ const applicationTables = {
     contractEndDate: v.optional(v.string()),
     dataAllowance: v.optional(v.string()), // "Unlimited", "50GB", etc.
     notes: v.optional(v.string()),
+    archived: v.optional(v.boolean()),
   })
     .index("by_user", ["userId"])
     .index("by_user_and_provider", ["userId", "provider"]),
