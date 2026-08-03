@@ -77,6 +77,41 @@ export function isValidDateFormat(dateStr: string): boolean {
          date.getDate() === day;
 }
 
+// Calculate whole calendar days from today to a stored date.
+export function getDaysUntilDate(dateStr: string): number | null {
+  if (!dateStr) return null;
+
+  let day: number;
+  let month: number;
+  let year: number;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    [year, month, day] = dateStr.split("-").map(Number);
+  } else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+    [day, month, year] = dateStr.split("-").map(Number);
+  } else {
+    return null;
+  }
+
+  const expiry = new Date(Date.UTC(year, month - 1, day));
+  if (
+    expiry.getUTCFullYear() !== year ||
+    expiry.getUTCMonth() !== month - 1 ||
+    expiry.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  const today = new Date();
+  const todayUtc = Date.UTC(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+
+  return Math.round((expiry.getTime() - todayUtc) / (1000 * 60 * 60 * 24));
+}
+
 // Get birthday info (day/month and days until next birthday)
 export function getBirthdayInfo(dateOfBirth: string): { dayMonth: string; daysUntilBirthday: number } | null {
   if (!dateOfBirth) return null;

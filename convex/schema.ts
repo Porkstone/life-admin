@@ -13,6 +13,7 @@ const applicationTables = {
     phone: v.optional(v.string()),
     drivingLicenseNumber: v.optional(v.string()),
     drivingLicenseDate: v.optional(v.string()),
+    drivingLicenseExpiryDate: v.optional(v.string()),
     passportNumber: v.optional(v.string()),
     passportExpiryDate: v.optional(v.string()),
     nationalInsuranceNumber: v.optional(v.string()),

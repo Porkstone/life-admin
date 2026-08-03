@@ -4,7 +4,7 @@ import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { DocumentManager } from "./DocumentManager";
 import { toast } from "sonner";
-import { formatDateForDisplay, getBirthdayInfo } from "./lib/utils";
+import { formatDateForDisplay, getBirthdayInfo, getDaysUntilDate } from "./lib/utils";
 
 interface PersonCardProps {
   person: {
@@ -17,6 +17,7 @@ interface PersonCardProps {
     phone?: string;
     drivingLicenseNumber?: string;
     drivingLicenseDate?: string;
+    drivingLicenseExpiryDate?: string;
     passportNumber?: string;
     passportExpiryDate?: string;
     nationalInsuranceNumber?: string;
@@ -30,6 +31,19 @@ export function PersonCard({ person, onEdit }: PersonCardProps) {
   const [showDocuments, setShowDocuments] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const removePerson = useMutation(api.people.remove);
+  const licenseDaysRemaining = person.drivingLicenseExpiryDate
+    ? getDaysUntilDate(person.drivingLicenseExpiryDate)
+    : null;
+
+  const getLicenseExpiryLabel = (daysRemaining: number) => {
+    if (daysRemaining < 0) {
+      const daysOverdue = Math.abs(daysRemaining);
+      return `License expired ${daysOverdue} ${daysOverdue === 1 ? "day" : "days"} ago`;
+    }
+    if (daysRemaining === 0) return "License expires today";
+    if (daysRemaining === 1) return "License expires tomorrow";
+    return `License expires in ${daysRemaining} days`;
+  };
 
   const handleDelete = async () => {
     if (confirm(`Are you sure you want to delete ${person.firstName} ${person.lastName}? This will also delete all associated documents.`)) {
@@ -109,6 +123,17 @@ export function PersonCard({ person, onEdit }: PersonCardProps) {
         {person.phone && (
           <p><span className="font-medium">Phone:</span> {person.phone}</p>
         )}
+        {licenseDaysRemaining !== null && licenseDaysRemaining < 90 && (
+          <p
+            className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
+              licenseDaysRemaining < 0
+                ? "bg-red-100 text-red-800"
+                : "bg-amber-100 text-amber-800"
+            }`}
+          >
+            {getLicenseExpiryLabel(licenseDaysRemaining)}
+          </p>
+        )}
       </div>
 
       <div className="mt-4 flex gap-2">
@@ -133,6 +158,9 @@ export function PersonCard({ person, onEdit }: PersonCardProps) {
           )}
           {person.drivingLicenseDate && (
             <p><span className="font-medium">License Date:</span> {formatDateForDisplay(person.drivingLicenseDate)}</p>
+          )}
+          {person.drivingLicenseExpiryDate && (
+            <p><span className="font-medium">License Expires:</span> {formatDateForDisplay(person.drivingLicenseExpiryDate)}</p>
           )}
           {person.passportNumber && (
             <p><span className="font-medium">Passport #:</span> {person.passportNumber}</p>

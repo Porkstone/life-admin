@@ -25,6 +25,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
     phone: "",
     drivingLicenseNumber: "",
     drivingLicenseDate: "",
+    drivingLicenseExpiryDate: "",
     passportNumber: "",
     passportExpiryDate: "",
     nationalInsuranceNumber: "",
@@ -43,6 +44,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
         phone: person.phone || "",
         drivingLicenseNumber: person.drivingLicenseNumber || "",
         drivingLicenseDate: formatDateForDisplay(person.drivingLicenseDate || ""),
+        drivingLicenseExpiryDate: formatDateForDisplay(person.drivingLicenseExpiryDate || ""),
         passportNumber: person.passportNumber || "",
         passportExpiryDate: formatDateForDisplay(person.passportExpiryDate || ""),
         nationalInsuranceNumber: person.nationalInsuranceNumber || "",
@@ -64,6 +66,10 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
       toast.error("Please enter driving license date in DD/MM/YYYY format");
       return;
     }
+    if (formData.drivingLicenseExpiryDate && !isValidDateFormat(formData.drivingLicenseExpiryDate)) {
+      toast.error("Please enter license expiry date in DD/MM/YYYY format");
+      return;
+    }
     if (formData.passportExpiryDate && !isValidDateFormat(formData.passportExpiryDate)) {
       toast.error("Please enter passport expiry date in DD/MM/YYYY format");
       return;
@@ -77,6 +83,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
         phone: formData.phone || undefined,
         drivingLicenseNumber: formData.drivingLicenseNumber || undefined,
         drivingLicenseDate: formData.drivingLicenseDate ? formatDateFromInput(formData.drivingLicenseDate) : undefined,
+        drivingLicenseExpiryDate: formData.drivingLicenseExpiryDate ? formatDateFromInput(formData.drivingLicenseExpiryDate) : undefined,
         passportNumber: formData.passportNumber || undefined,
         passportExpiryDate: formData.passportExpiryDate ? formatDateFromInput(formData.passportExpiryDate) : undefined,
         nationalInsuranceNumber: formData.nationalInsuranceNumber || undefined,
@@ -212,7 +219,7 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Driving License Number
@@ -233,6 +240,20 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
               type="text"
               name="drivingLicenseDate"
               value={formData.drivingLicenseDate}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+              placeholder="dd/mm/yyyy"
+            />
+            <p className="text-xs text-gray-500 mt-1">UK format (DD/MM/YYYY)</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              License Expiry Date
+            </label>
+            <input
+              type="text"
+              name="drivingLicenseExpiryDate"
+              value={formData.drivingLicenseExpiryDate}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               placeholder="dd/mm/yyyy"
