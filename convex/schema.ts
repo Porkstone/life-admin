@@ -18,6 +18,10 @@ const applicationTables = {
     passportExpiryDate: v.optional(v.string()),
     nationalInsuranceNumber: v.optional(v.string()),
     nhsNumber: v.optional(v.string()),
+    lifeInsuranceProvider: v.optional(v.string()),
+    lifeInsuranceCover: v.optional(v.number()),
+    lifeInsurancePolicyNumber: v.optional(v.string()),
+    lifeInsuranceExpiryDate: v.optional(v.string()),
     notes: v.optional(v.string()),
   })
     .index("by_user", ["userId"])

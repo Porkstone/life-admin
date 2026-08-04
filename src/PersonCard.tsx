@@ -22,6 +22,10 @@ interface PersonCardProps {
     passportExpiryDate?: string;
     nationalInsuranceNumber?: string;
     nhsNumber?: string;
+    lifeInsuranceProvider?: string;
+    lifeInsuranceCover?: number;
+    lifeInsurancePolicyNumber?: string;
+    lifeInsuranceExpiryDate?: string;
     notes?: string;
   };
   onEdit: () => void;
@@ -173,6 +177,23 @@ export function PersonCard({ person, onEdit }: PersonCardProps) {
           )}
           {person.nhsNumber && (
             <p><span className="font-medium">NHS Number:</span> {person.nhsNumber}</p>
+          )}
+          {(person.lifeInsuranceProvider || person.lifeInsuranceCover || person.lifeInsurancePolicyNumber || person.lifeInsuranceExpiryDate) && (
+            <div className="mt-3 rounded-lg border border-blue-100 bg-blue-50 p-3">
+              <p className="mb-2 font-semibold text-blue-900">Life Insurance</p>
+              {person.lifeInsuranceProvider && (
+                <p><span className="font-medium">Provider:</span> {person.lifeInsuranceProvider}</p>
+              )}
+              {person.lifeInsuranceCover !== undefined && (
+                <p><span className="font-medium">Cover:</span> {new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(person.lifeInsuranceCover)}</p>
+              )}
+              {person.lifeInsurancePolicyNumber && (
+                <p><span className="font-medium">Policy Number:</span> {person.lifeInsurancePolicyNumber}</p>
+              )}
+              {person.lifeInsuranceExpiryDate && (
+                <p><span className="font-medium">Expiry Date:</span> {formatDateForDisplay(person.lifeInsuranceExpiryDate)}</p>
+              )}
+            </div>
           )}
           {person.notes && (
             <p><span className="font-medium">Notes:</span> {person.notes}</p>

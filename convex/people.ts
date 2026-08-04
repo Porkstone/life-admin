@@ -104,6 +104,10 @@ export const create = mutation({
     passportExpiryDate: v.optional(v.string()),
     nationalInsuranceNumber: v.optional(v.string()),
     nhsNumber: v.optional(v.string()),
+    lifeInsuranceProvider: v.optional(v.string()),
+    lifeInsuranceCover: v.optional(v.number()),
+    lifeInsurancePolicyNumber: v.optional(v.string()),
+    lifeInsuranceExpiryDate: v.optional(v.string()),
     notes: v.optional(v.string()),
     ownerId: v.optional(v.id("users")),
   },
@@ -139,6 +143,11 @@ export const update = mutation({
     passportExpiryDate: v.optional(v.string()),
     nationalInsuranceNumber: v.optional(v.string()),
     nhsNumber: v.optional(v.string()),
+    lifeInsuranceProvider: v.optional(v.string()),
+    lifeInsuranceCover: v.optional(v.number()),
+    lifeInsurancePolicyNumber: v.optional(v.string()),
+    lifeInsuranceExpiryDate: v.optional(v.string()),
+    removeLifeInsurance: v.optional(v.boolean()),
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -150,8 +159,17 @@ export const update = mutation({
     // Check access permissions
     await checkDataAccess(ctx, person.userId, "people");
     
-    const { id, ...updates } = args;
-    await ctx.db.patch(id, updates);
+    const { id, removeLifeInsurance, ...updates } = args;
+    await ctx.db.patch(id, removeLifeInsurance
+      ? {
+          ...updates,
+          lifeInsuranceProvider: undefined,
+          lifeInsuranceCover: undefined,
+          lifeInsurancePolicyNumber: undefined,
+          lifeInsuranceExpiryDate: undefined,
+        }
+      : updates
+    );
     return { success: true };
   },
 });
