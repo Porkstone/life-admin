@@ -21,7 +21,7 @@ export function HomeManager({ selectedUserId, onUserChange }: HomeManagerProps) 
 
   const handleCreateHome = async (homeData: any) => {
     try {
-      await createHome({ ...homeData, ownerId: selectedUserId });
+      await createHome({ ...homeData, ownerId: selectedUserId ?? undefined });
       toast.success("Home added successfully");
       setShowForm(false);
     } catch (error) {
