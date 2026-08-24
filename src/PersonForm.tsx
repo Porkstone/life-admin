@@ -197,102 +197,6 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
           </div>
         </div>
 
-        <section className="rounded-xl border border-blue-200 bg-blue-50/60 p-4">
-          {showLifeInsurance ? (
-            <>
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="rounded-lg bg-blue-600 p-2 text-white">
-                    <ShieldCheck aria-hidden="true" size={18} />
-                  </span>
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Life insurance</h4>
-                    <p className="text-xs text-gray-600">Policy details for this person</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={removeLifeInsurance}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
-                >
-                  <Trash2 aria-hidden="true" size={15} />
-                  Remove
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Provider
-                  </label>
-                  <input
-                    type="text"
-                    name="lifeInsuranceProvider"
-                    value={formData.lifeInsuranceProvider}
-                    onChange={handleChange}
-                    placeholder="e.g., Aviva"
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Cover
-                  </label>
-                  <div className="relative">
-                    <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">£</span>
-                    <input
-                      type="number"
-                      name="lifeInsuranceCover"
-                      value={formData.lifeInsuranceCover}
-                      onChange={handleChange}
-                      min="0"
-                      step="1000"
-                      inputMode="numeric"
-                      placeholder="250000"
-                      className="w-full rounded-md border border-gray-300 bg-white py-2 pl-7 pr-3 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Policy Number
-                  </label>
-                  <input
-                    type="text"
-                    name="lifeInsurancePolicyNumber"
-                    value={formData.lifeInsurancePolicyNumber}
-                    onChange={handleChange}
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Expiry Date
-                  </label>
-                  <input
-                    type="text"
-                    name="lifeInsuranceExpiryDate"
-                    value={formData.lifeInsuranceExpiryDate}
-                    onChange={handleChange}
-                    placeholder="dd/mm/yyyy"
-                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">UK format (DD/MM/YYYY)</p>
-                </div>
-              </div>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowLifeInsurance(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-blue-400 bg-white px-4 py-3 font-medium text-blue-700 transition-colors hover:border-blue-600 hover:bg-blue-50"
-            >
-              <Plus aria-hidden="true" size={18} />
-              Add life insurance policy
-            </button>
-          )}
-        </section>
-
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Relationship *
@@ -456,6 +360,102 @@ export function PersonForm({ personId, onClose, ownerId }: PersonFormProps) {
             />
           </div>
         </div>
+
+        <section className="rounded-xl border border-blue-200 bg-blue-50/60 p-4">
+          {showLifeInsurance ? (
+            <>
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="rounded-lg bg-blue-600 p-2 text-white">
+                    <ShieldCheck aria-hidden="true" size={18} />
+                  </span>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Life insurance</h4>
+                    <p className="text-xs text-gray-600">Policy details for this person</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeLifeInsurance}
+                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 aria-hidden="true" size={15} />
+                  Remove
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Provider
+                  </label>
+                  <input
+                    type="text"
+                    name="lifeInsuranceProvider"
+                    value={formData.lifeInsuranceProvider}
+                    onChange={handleChange}
+                    placeholder="e.g., Aviva"
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Cover
+                  </label>
+                  <div className="relative">
+                    <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">£</span>
+                    <input
+                      type="number"
+                      name="lifeInsuranceCover"
+                      value={formData.lifeInsuranceCover}
+                      onChange={handleChange}
+                      min="0"
+                      step="1000"
+                      inputMode="numeric"
+                      placeholder="250000"
+                      className="w-full rounded-md border border-gray-300 bg-white py-2 pl-7 pr-3 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Policy Number
+                  </label>
+                  <input
+                    type="text"
+                    name="lifeInsurancePolicyNumber"
+                    value={formData.lifeInsurancePolicyNumber}
+                    onChange={handleChange}
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Expiry Date
+                  </label>
+                  <input
+                    type="text"
+                    name="lifeInsuranceExpiryDate"
+                    value={formData.lifeInsuranceExpiryDate}
+                    onChange={handleChange}
+                    placeholder="dd/mm/yyyy"
+                    className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">UK format (DD/MM/YYYY)</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowLifeInsurance(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-blue-400 bg-white px-4 py-3 font-medium text-blue-700 transition-colors hover:border-blue-600 hover:bg-blue-50"
+            >
+              <Plus aria-hidden="true" size={18} />
+              Add life insurance policy
+            </button>
+          )}
+        </section>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
