@@ -2,6 +2,7 @@ import { convexAuth, getAuthUserId } from "@convex-dev/auth/server";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { Anonymous } from "@convex-dev/auth/providers/Anonymous";
 import { Email } from "@convex-dev/auth/providers/Email";
+import { Resend } from "resend";
 import { query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 
@@ -22,20 +23,12 @@ const magicLink = Email({
       throw new Error("CONVEX_RESEND_API_KEY is not configured");
     }
 
-    const resendBaseUrl = (
-      process.env.RESEND_BASE_URL ?? "https://api.resend.com"
-    ).replace(/\/$/, "");
-    const response = await fetch(`${resendBaseUrl}/emails`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: emailFrom,
-        to: identifier,
-        subject: "Sign in to Life Admin",
-        html: `
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from: emailFrom,
+      to: identifier,
+      subject: "Sign in to Life Admin",
+      html: `
           <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111827;">
             <h1 style="font-size: 24px; margin-bottom: 12px;">Sign in to Life Admin</h1>
             <p style="line-height: 1.6; color: #4b5563;">Use the secure link below to sign in. It expires in one hour.</p>
@@ -43,12 +36,15 @@ const magicLink = Email({
             <p style="font-size: 13px; line-height: 1.5; color: #6b7280;">If you didn't request this email, you can safely ignore it.</p>
           </div>
         `,
-        text: `Sign in to Life Admin\n\n${url}\n\nThis link expires in one hour.`,
-      }),
+      text: `Sign in to Life Admin\n\n${url}\n\nThis link expires in one hour.`,
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to send magic link (${response.status})`);
+    if (error) {
+      console.error("Magic link email provider error", {
+        name: error.name,
+        message: error.message,
+      });
+      throw new Error("Failed to send magic link");
     }
   },
 });

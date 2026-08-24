@@ -11,6 +11,18 @@ The frontend code is in the `src` directory and is built with [Vite](https://vit
 
 The backend code is in the `convex` directory.
 
+## Hosting architecture
+
+The production frontend is currently deployed on Vercel at
+[`https://life-admin-ui.vercel.app/`](https://life-admin-ui.vercel.app/). It is
+not hosted by Convex. Convex hosts the backend functions, database, and
+authentication endpoints only.
+
+The Vercel deployment's `VITE_CONVEX_URL` must point to the intended Convex
+backend deployment. On the Convex deployment, `SITE_URL` must be set to the
+Vercel frontend URL so authentication callbacks and emailed sign-in links
+return users to the correct application.
+
 ## Supported browsers
 
 The application supports current versions of:
