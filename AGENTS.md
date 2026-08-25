@@ -9,3 +9,7 @@ Unless the user explicitly asks otherwise, after completing and verifying reques
 3. Push the commit to `origin/master` automatically.
 
 Never commit secrets, generated build output, or unrelated user changes. If committing or pushing is unsafe or blocked by authentication, conflicts, branch protection, or failing verification, stop and explain the blocker instead of forcing the operation.
+
+## Product assumptions
+
+This is a single-user application and is intended to have only one user. Do not introduce multi-user, tenant, team, role, invitation, or account-sharing behavior unless the user explicitly requests it.
