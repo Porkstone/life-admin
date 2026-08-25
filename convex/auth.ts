@@ -2,33 +2,54 @@ import { convexAuth, getAuthUserId } from "@convex-dev/auth/server";
 import { Password } from "@convex-dev/auth/providers/Password";
 import { Anonymous } from "@convex-dev/auth/providers/Anonymous";
 import { Email } from "@convex-dev/auth/providers/Email";
-import { Resend } from "resend";
 import { query } from "./_generated/server";
 import type { MutationCtx } from "./_generated/server";
 
-const emailFrom =
-  process.env.AUTH_EMAIL_FROM ??
-  "Life Admin <colorless-chickadee-470@convexchef.app>";
+const chefEmailFrom =
+  "Life Admin <onboarding@resend.dev>";
 
 const magicLink = Email({
   id: "magic-link",
-  from:
-    process.env.AUTH_EMAIL_FROM ??
-    "Life Admin <colorless-chickadee-470@convexchef.app>",
+  from: process.env.AUTH_EMAIL_FROM ?? chefEmailFrom,
   maxAge: 60 * 60,
   authorize: undefined,
   async sendVerificationRequest({ identifier, url }) {
-    const apiKey = process.env.CONVEX_RESEND_API_KEY;
+    const resendApiKey = process.env.AUTH_RESEND_KEY;
+    const chefProxyKey = process.env.CONVEX_RESEND_API_KEY;
+    const apiKey = resendApiKey ?? chefProxyKey;
     if (!apiKey) {
-      throw new Error("CONVEX_RESEND_API_KEY is not configured");
+      throw new Error(
+        "AUTH_RESEND_KEY or CONVEX_RESEND_API_KEY must be configured",
+      );
     }
 
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: emailFrom,
-      to: identifier,
-      subject: "Sign in to Life Admin",
-      html: `
+    const usingDirectResend = resendApiKey !== undefined;
+    const emailFrom = process.env.AUTH_EMAIL_FROM ?? chefEmailFrom;
+    if (usingDirectResend && !process.env.AUTH_EMAIL_FROM) {
+      throw new Error(
+        "AUTH_EMAIL_FROM must be configured when AUTH_RESEND_KEY is used",
+      );
+    }
+
+    const emailApiBaseUrl = usingDirectResend
+      ? "https://api.resend.com"
+      : process.env.RESEND_BASE_URL;
+    if (!emailApiBaseUrl) {
+      throw new Error("RESEND_BASE_URL is not configured for the email proxy");
+    }
+
+    const response = await fetch(`${emailApiBaseUrl.replace(/\/$/, "")}/emails`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "User-Agent": "life-admin-magic-link/1.0",
+      },
+      body: JSON.stringify({
+        from: emailFrom,
+        to: identifier,
+        subject: "Sign in to Life Admin",
+        html: `
           <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #111827;">
             <h1 style="font-size: 24px; margin-bottom: 12px;">Sign in to Life Admin</h1>
             <p style="line-height: 1.6; color: #4b5563;">Use the secure link below to sign in. It expires in one hour.</p>
@@ -36,13 +57,16 @@ const magicLink = Email({
             <p style="font-size: 13px; line-height: 1.5; color: #6b7280;">If you didn't request this email, you can safely ignore it.</p>
           </div>
         `,
-      text: `Sign in to Life Admin\n\n${url}\n\nThis link expires in one hour.`,
+        text: `Sign in to Life Admin\n\n${url}\n\nThis link expires in one hour.`,
+      }),
     });
 
-    if (error) {
+    if (!response.ok) {
+      const providerResponse = (await response.text()).slice(0, 500);
       console.error("Magic link email provider error", {
-        name: error.name,
-        message: error.message,
+        status: response.status,
+        transport: usingDirectResend ? "resend" : "chef-proxy",
+        response: providerResponse,
       });
       throw new Error("Failed to send magic link");
     }
