@@ -6,6 +6,7 @@ import {
   useQuery,
 } from "convex/react";
 import {
+  Bot,
   Car,
   House,
   Link2,
@@ -27,6 +28,7 @@ import { Toaster, toast } from "sonner";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { AdminPanel } from "./AdminPanel";
+import { AgentAccess } from "./AgentAccess";
 import { EnhancedSignInForm } from "./EnhancedSignInForm";
 import { HomeManager } from "./HomeManager";
 import { InviteAccept } from "./InviteAccept";
@@ -44,6 +46,7 @@ type DashboardTab =
   | "homes"
   | "mobile"
   | "invites"
+  | "agents"
   | "admin";
 
 const dashboardTabs = [
@@ -51,6 +54,7 @@ const dashboardTabs = [
   { id: "vehicles", label: "Vehicles", path: "/vehicles", icon: Car },
   { id: "homes", label: "Homes", path: "/homes", icon: House },
   { id: "mobile", label: "Mobile", path: "/mobile", icon: Smartphone },
+  { id: "agents", label: "Agent access", path: "/agents", icon: Bot },
   {
     id: "invites",
     label: "Invites & Access",
@@ -286,6 +290,7 @@ function Content() {
             }
           />
           <Route path="invites" element={<InviteManager />} />
+          <Route path="agents" element={<AgentAccess />} />
           <Route
             path="admin"
             element={

@@ -1,8 +1,34 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
+import { agentCategory, agentOperation, agentOutcome } from "./agentValidators";
 
 const applicationTables = {
+  agentTokens: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    tokenHash: v.string(),
+    suffix: v.string(),
+    categories: v.array(agentCategory),
+    allowIdentityNumbers: v.boolean(),
+    expiresAt: v.number(),
+    revokedAt: v.optional(v.number()),
+    lastUsedAt: v.optional(v.number()),
+    usageWindowStartedAt: v.optional(v.number()),
+    usageCount: v.optional(v.number()),
+  }).index("by_user", ["userId"]).index("by_tokenHash", ["tokenHash"]),
+
+  agentAccessLogs: defineTable({
+    userId: v.id("users"),
+    tokenId: v.id("agentTokens"),
+    agentName: v.string(),
+    operation: agentOperation,
+    category: agentCategory,
+    outcome: agentOutcome,
+    recordIds: v.array(v.string()),
+    accessedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
   people: defineTable({
     userId: v.id("users"), // Owner of this person record
     firstName: v.string(),

@@ -1,8 +1,15 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { api } from "./_generated/api";
+import { apiRead, mcp } from "./agentHttp";
 
 const http = httpRouter();
+
+http.route({ path: "/agent/v1/read", method: "POST", handler: apiRead });
+http.route({ path: "/agent/v1/read", method: "OPTIONS", handler: apiRead });
+for (const method of ["POST", "GET", "DELETE", "OPTIONS"] as const) {
+  http.route({ path: "/mcp", method, handler: mcp });
+}
 
 // Validate reset token without using it
 http.route({
