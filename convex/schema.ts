@@ -76,6 +76,7 @@ const applicationTables = {
     registrationExpiry: v.optional(v.string()),
     insuranceProvider: v.optional(v.string()),
     insuranceExpiry: v.optional(v.string()),
+    ncbStartDate: v.optional(v.string()),
     motExpiry: v.optional(v.string()),
     serviceInterval: v.optional(v.string()), // "6 months", "12 months", "10,000 miles", etc.
     nextServiceDueDate: v.optional(v.string()),

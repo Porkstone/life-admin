@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
+import { isDateOnly } from "../shared/calendarDates";
 
 async function getLoggedInUser(ctx: any) {
   const userId = await getAuthUserId(ctx);
@@ -90,6 +91,7 @@ export const create = mutation({
     registrationExpiry: v.optional(v.string()),
     insuranceProvider: v.optional(v.string()),
     insuranceExpiry: v.optional(v.string()),
+    ncbStartDate: v.optional(v.string()),
     motExpiry: v.optional(v.string()),
     serviceInterval: v.optional(v.string()),
     nextServiceDueDate: v.optional(v.string()),
@@ -98,12 +100,17 @@ export const create = mutation({
     notes: v.optional(v.string()),
     ownerId: v.optional(v.id("users")),
   },
+  returns: v.id("vehicles"),
   handler: async (ctx, args) => {
     const currentUser = await getLoggedInUser(ctx);
     const targetUserId = args.ownerId || currentUser._id;
     
     // Check access permissions
     await checkDataAccess(ctx, targetUserId, "vehicles");
+
+    if (args.ncbStartDate !== undefined && !isDateOnly(args.ncbStartDate)) {
+      throw new Error("NCB start date must be a valid YYYY-MM-DD date");
+    }
     
     const { ownerId, ...vehicleData } = args;
     
@@ -126,6 +133,7 @@ export const update = mutation({
     registrationExpiry: v.optional(v.string()),
     insuranceProvider: v.optional(v.string()),
     insuranceExpiry: v.optional(v.string()),
+    ncbStartDate: v.optional(v.union(v.string(), v.null())),
     motExpiry: v.optional(v.string()),
     serviceInterval: v.optional(v.string()),
     nextServiceDueDate: v.optional(v.string()),
@@ -133,6 +141,7 @@ export const update = mutation({
     addedToDart: v.optional(v.boolean()),
     notes: v.optional(v.string()),
   },
+  returns: v.object({ success: v.boolean() }),
   handler: async (ctx, args) => {
     const vehicle = await ctx.db.get(args.id);
     if (!vehicle) {
@@ -141,9 +150,16 @@ export const update = mutation({
     
     // Check access permissions
     await checkDataAccess(ctx, vehicle.userId, "vehicles");
+
+    if (args.ncbStartDate != null && !isDateOnly(args.ncbStartDate)) {
+      throw new Error("NCB start date must be a valid YYYY-MM-DD date");
+    }
     
-    const { id, ...updates } = args;
-    await ctx.db.patch(id, updates);
+    const { id, ncbStartDate, ...updates } = args;
+    await ctx.db.patch(id, {
+      ...updates,
+      ...(ncbStartDate !== undefined ? { ncbStartDate: ncbStartDate ?? undefined } : {}),
+    });
     return { success: true };
   },
 });

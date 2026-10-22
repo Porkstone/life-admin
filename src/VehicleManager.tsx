@@ -4,6 +4,7 @@ import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { UserSelector } from "./UserSelector";
+import { getWholeYearsSince } from "../shared/calendarDates";
 
 // Utility functions for date format conversion
 const formatDateForDisplay = (isoDate: string): string => {
@@ -17,6 +18,9 @@ const formatDateForDisplay = (isoDate: string): string => {
 
 const formatDateForInput = (isoDate: string): string => {
   if (!isoDate) return "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) {
+    return isoDate.split("-").reverse().join("-");
+  }
   const date = new Date(isoDate);
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -54,6 +58,7 @@ interface Vehicle {
   registrationExpiry?: string;
   insuranceProvider?: string;
   insuranceExpiry?: string;
+  ncbStartDate?: string;
   motExpiry?: string;
   serviceInterval?: string;
   nextServiceDueDate?: string;
@@ -65,6 +70,17 @@ interface Vehicle {
 interface VehicleManagerProps {
   selectedUserId: Id<"users"> | null;
   onUserChange: (userId: Id<"users"> | null) => void;
+}
+
+function VehicleNcb({ startDate }: { startDate?: string }) {
+  const years = getWholeYearsSince(startDate);
+  if (years === null) return null;
+  return (
+    <div className="flex justify-between">
+      <span className="text-gray-600">NCB:</span>
+      <span>{years} {years === 1 ? "year" : "years"}</span>
+    </div>
+  );
 }
 
 export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerProps) {
@@ -86,6 +102,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
     registrationExpiry: "",
     insuranceProvider: "",
     insuranceExpiry: "",
+    ncbStartDate: "",
     motExpiry: "",
     serviceInterval: "",
     nextServiceDueDate: "",
@@ -105,6 +122,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
       registrationExpiry: "",
       insuranceProvider: "",
       insuranceExpiry: "",
+      ncbStartDate: "",
       motExpiry: "",
       serviceInterval: "",
       nextServiceDueDate: "",
@@ -131,6 +149,10 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
     }
     if (!validateDateFormat(formData.insuranceExpiry)) {
       toast.error("Insurance expiry must be in DD-MM-YYYY format");
+      return;
+    }
+    if (!validateDateFormat(formData.ncbStartDate)) {
+      toast.error("NCB start date must be a valid date in DD-MM-YYYY format");
       return;
     }
     if (!validateDateFormat(formData.motExpiry)) {
@@ -165,10 +187,15 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
         await updateVehicle({
           id: editingVehicle._id,
           ...vehicleData,
+          ncbStartDate: formatInputForStorage(formData.ncbStartDate) || null,
         });
         toast.success("Vehicle updated successfully");
       } else {
-        await createVehicle({ ...vehicleData, ownerId: selectedUserId || undefined });
+        await createVehicle({
+          ...vehicleData,
+          ncbStartDate: formatInputForStorage(formData.ncbStartDate) || undefined,
+          ownerId: selectedUserId || undefined,
+        });
         toast.success("Vehicle added successfully");
       }
       
@@ -190,6 +217,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
       registrationExpiry: formatDateForInput(vehicle.registrationExpiry || ""),
       insuranceProvider: vehicle.insuranceProvider || "",
       insuranceExpiry: formatDateForInput(vehicle.insuranceExpiry || ""),
+      ncbStartDate: formatDateForInput(vehicle.ncbStartDate || ""),
       motExpiry: formatDateForInput(vehicle.motExpiry || ""),
       serviceInterval: vehicle.serviceInterval || "",
       nextServiceDueDate: formatDateForInput(vehicle.nextServiceDueDate || ""),
@@ -451,6 +479,24 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
             </div>
 
             <div>
+              <label htmlFor="vehicle-ncb-start-date" className="block text-sm font-medium text-gray-700 mb-1">
+                NCB Start Date
+              </label>
+              <input
+                id="vehicle-ncb-start-date"
+                type="text"
+                value={formData.ncbStartDate}
+                onChange={(e) => setFormData({ ...formData, ncbStartDate: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                placeholder="DD-MM-YYYY"
+                aria-describedby="vehicle-ncb-start-date-hint"
+              />
+              <p id="vehicle-ncb-start-date-hint" className="mt-1 text-xs text-gray-600">
+                Used to calculate completed years of no-claims bonus.
+              </p>
+            </div>
+
+            <div>
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                 <input
                   type="checkbox"
@@ -571,6 +617,8 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   <span>{getHomeName(vehicle.insuredAt)}</span>
                 </div>
               )}
+
+              <VehicleNcb startDate={vehicle.ncbStartDate} />
 
               {vehicle.motExpiry && (
                 <div className="flex justify-between">
