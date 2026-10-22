@@ -445,7 +445,7 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Insurance Provider
@@ -476,24 +476,24 @@ export function VehicleManager({ selectedUserId, onUserChange }: VehicleManagerP
                   ))}
                 </select>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="vehicle-ncb-start-date" className="block text-sm font-medium text-gray-700 mb-1">
-                NCB Start Date
-              </label>
-              <input
-                id="vehicle-ncb-start-date"
-                type="text"
-                value={formData.ncbStartDate}
-                onChange={(e) => setFormData({ ...formData, ncbStartDate: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
-                placeholder="DD-MM-YYYY"
-                aria-describedby="vehicle-ncb-start-date-hint"
-              />
-              <p id="vehicle-ncb-start-date-hint" className="mt-1 text-xs text-gray-600">
-                Used to calculate completed years of no-claims bonus.
-              </p>
+              <div>
+                <label htmlFor="vehicle-ncb-start-date" className="block text-sm font-medium text-gray-700 mb-1">
+                  NCB Start Date
+                </label>
+                <input
+                  id="vehicle-ncb-start-date"
+                  type="text"
+                  value={formData.ncbStartDate}
+                  onChange={(e) => setFormData({ ...formData, ncbStartDate: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                  placeholder="DD-MM-YYYY"
+                  aria-describedby="vehicle-ncb-start-date-hint"
+                />
+                <p id="vehicle-ncb-start-date-hint" className="mt-1 text-xs text-gray-600">
+                  Used to calculate completed years of no-claims bonus.
+                </p>
+              </div>
             </div>
 
             <div>
