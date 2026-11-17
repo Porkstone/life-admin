@@ -9,21 +9,19 @@
  */
 
 import type * as admin from "../admin.js";
-import type * as adminActions from "../adminActions.js";
 import type * as agentAccess from "../agentAccess.js";
 import type * as agentHttp from "../agentHttp.js";
 import type * as agentProjection from "../agentProjection.js";
 import type * as agentProtocol from "../agentProtocol.js";
 import type * as agentValidators from "../agentValidators.js";
 import type * as auth from "../auth.js";
+import type * as authMigration from "../authMigration.js";
 import type * as documents from "../documents.js";
-import type * as emailActions from "../emailActions.js";
 import type * as homes from "../homes.js";
 import type * as http from "../http.js";
 import type * as invites from "../invites.js";
+import type * as legacyAuthSchema from "../legacyAuthSchema.js";
 import type * as mobileContracts from "../mobileContracts.js";
-import type * as passwordReset from "../passwordReset.js";
-import type * as passwordResetAuth from "../passwordResetAuth.js";
 import type * as people from "../people.js";
 import type * as router from "../router.js";
 import type * as users from "../users.js";
@@ -37,21 +35,19 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
-  adminActions: typeof adminActions;
   agentAccess: typeof agentAccess;
   agentHttp: typeof agentHttp;
   agentProjection: typeof agentProjection;
   agentProtocol: typeof agentProtocol;
   agentValidators: typeof agentValidators;
   auth: typeof auth;
+  authMigration: typeof authMigration;
   documents: typeof documents;
-  emailActions: typeof emailActions;
   homes: typeof homes;
   http: typeof http;
   invites: typeof invites;
+  legacyAuthSchema: typeof legacyAuthSchema;
   mobileContracts: typeof mobileContracts;
-  passwordReset: typeof passwordReset;
-  passwordResetAuth: typeof passwordResetAuth;
   people: typeof people;
   router: typeof router;
   users: typeof users;
@@ -84,4 +80,9 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  auth: import("@convex-dev/auth/_generated/component.js").ComponentApi<"auth">;
+  authEmail: import("@convex-dev/auth/components/email/_generated/component.js").ComponentApi<"authEmail">;
+  authPassword: import("@convex-dev/auth/components/password/_generated/component.js").ComponentApi<"authPassword">;
+  resend: import("@convex-dev/resend/_generated/component.js").ComponentApi<"resend">;
+};

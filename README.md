@@ -16,11 +16,11 @@ The backend code is in the `convex` directory.
 The production frontend is currently deployed on Vercel at
 [`https://life-admin-ui.vercel.app/`](https://life-admin-ui.vercel.app/). It is
 not hosted by Convex. Convex hosts the backend functions, database, and
-authentication endpoints only.
+authentication functions only.
 
 The Vercel deployment's `VITE_CONVEX_URL` must point to the intended Convex
 backend deployment. On the Convex deployment, `SITE_URL` must be set to the
-Vercel frontend URL so authentication callbacks and emailed sign-in links
+Vercel frontend URL so emailed recovery links
 return users to the correct application.
 
 ## Supported browsers
@@ -34,7 +34,19 @@ Other browsers are not part of the supported test matrix.
 
 ## App authentication
 
-Chef apps use [Convex Auth](https://auth.convex.dev/) with Anonymous auth for easy sign in. You may wish to change this before deploying your app.
+The app uses **Convex Auth v2** with email/password sign-in and email-based
+password recovery through Resend. New registration and anonymous sign-in are
+closed. Existing application user IDs and record ownership are preserved.
+
+After the v2 upgrade, use **Forgot your password?** to establish your new
+password. Legacy passwords, sessions, magic links and reset links no longer
+work. See [the migration and recovery guide](docs/auth-v2-migration.md).
+
+The recovery journey is available at `/forgot-password`. Its email opens
+`/reset-password?code=?`, where you choose and confirm a new password. Links
+expire after ten minutes, work once, and must be opened in the same browser
+and on the same device that requested them. Recovery signs out older sessions
+and signs you in with the new password.
 
 ## Developing and deploying your app
 
@@ -55,7 +67,7 @@ Check out the [Convex docs](https://docs.convex.dev/) for more information on ho
 
 ## HTTP API
 
-User-defined http routes are defined in the `convex/router.ts` file. We split these routes into a separate file from `convex/http.ts` to allow us to prevent the LLM from modifying the authentication routes.
+HTTP agent routes are defined in `convex/router.ts` and exported by `convex/http.ts`. Auth v2 uses Convex functions; the legacy HTTP authentication and password-reset routes have been removed.
 
 ## AI agent access
 

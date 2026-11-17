@@ -35,6 +35,7 @@ import { InviteAccept } from "./InviteAccept";
 import { InviteManager } from "./InviteManager";
 import { MobileContractManager } from "./MobileContractManager";
 import { PasswordResetPage } from "./PasswordResetPage";
+import { ForgotPasswordForm } from "./ForgotPasswordForm";
 import { PeopleManager } from "./PeopleManager";
 import { ProfileSettings } from "./ProfileSettings";
 import { SignOutButton } from "./SignOutButton";
@@ -72,7 +73,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/invite/:token" element={<InvitePage />} />
-      <Route path="/reset-password/:token" element={<PasswordResetRoute />} />
+      <Route path="/forgot-password" element={<ForgotPasswordRoute />} />
+      <Route path="/reset-password" element={<PasswordResetPage />} />
+      <Route path="/reset-password/:token" element={<PasswordResetPage />} />
       <Route path="/*" element={<DashboardShell />} />
     </Routes>
   );
@@ -139,14 +142,11 @@ function InvitePage() {
   );
 }
 
-function PasswordResetRoute() {
-  const { token } = useParams<{ token: string }>();
-
-  return token ? (
-    <PasswordResetPage token={token} />
-  ) : (
-    <Navigate to="/people" replace />
-  );
+function ForgotPasswordRoute() {
+  const navigate = useNavigate();
+  return <main className="min-h-screen bg-gray-50 px-4 py-16">
+    <ForgotPasswordForm onBack={() => void navigate("/")} />
+  </main>;
 }
 
 function HeaderActions() {

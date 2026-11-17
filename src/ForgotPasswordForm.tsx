@@ -1,134 +1,44 @@
+import { useStartPasswordRecovery } from "@convex-dev/auth/methods/email-password/react";
 import { useState } from "react";
-import { useAction } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { toast } from "sonner";
+import { authErrorMessage } from "./lib/authErrors";
 
-interface ForgotPasswordFormProps {
-  onBack: () => void;
-}
-
-export function ForgotPasswordForm({ onBack }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
+  const { startPasswordRecovery, pending } = useStartPasswordRecovery(api.auth);
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  
-  const requestReset = useAction(api.emailActions.requestPasswordReset);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email.trim()) {
-      toast.error("Please enter your email address");
-      return;
-    }
-
-    setIsLoading(true);
-    
-    try {
-      await requestReset({ email: email.trim() });
-      setEmailSent(true);
-      toast.success("If an account exists with that email, we've sent a reset link");
-    } catch (error) {
-      console.error("Password reset error:", error);
-      toast.error("Failed to send reset email. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (emailSent) {
-    return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
-            <p className="text-gray-600 mb-6">
-              If an account exists with <strong>{email}</strong>, we've sent you a one-time login link.
-            </p>
-            <p className="text-sm text-gray-500 mb-6">
-              The link will expire in 1 hour. Check your spam folder if you don't see it.
-            </p>
-          </div>
-          
-          <div className="space-y-4">
-            <button
-              onClick={onBack}
-              className="w-full px-4 py-3 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors"
-            >
-              Back to Sign In
-            </button>
-            <button
-              onClick={() => {
-                setEmailSent(false);
-                setEmail("");
-              }}
-              className="w-full px-4 py-3 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Try Different Email
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Forgot Password?</h2>
-          <p className="text-gray-600">
-            Enter your email address and we'll send you a one-time login link.
-          </p>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="auth-input-field"
-              placeholder="Enter your email"
-              disabled={isLoading}
-              required
-            />
-          </div>
-          
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="auth-button"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Sending...
-              </div>
-            ) : (
-              "Send Reset Link"
-            )}
-          </button>
-        </form>
-        
-        <div className="mt-6 text-center">
-          <button
-            onClick={onBack}
-            className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
-          >
-            ← Back to Sign In
-          </button>
-        </div>
-      </div>
+    <div className="mx-auto w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+      <h1 className="mb-4 text-2xl font-bold text-gray-900">{sent ? "Check your email" : "Reset your password"}</h1>
+      {sent ? <div role="status" className="space-y-3 text-gray-600">
+        <p>If an account exists for <strong>{email}</strong>, we have sent a password reset link.</p>
+        <p>The link expires after 10 minutes. Open it in this browser, on this device.
+          Check your spam folder if it has not arrived.</p>
+        <button type="button" className="text-blue-600 hover:underline" onClick={() => setSent(false)}>
+          Request another link
+        </button>
+      </div> : <form className="space-y-4" onSubmit={async (event) => {
+        event.preventDefault();
+        setError(null);
+        const result = await startPasswordRecovery({ email: email.trim() });
+        // Keep the response generic for an unknown email.
+        if (result.success || result.userError.error === "EMAIL_NOT_FOUND") setSent(true);
+        else setError(authErrorMessage(result.userError));
+      }}>
+        <p className="text-gray-600">Enter your account email to receive a password reset link.</p>
+        <label className="block text-sm font-medium" htmlFor="recovery-email">Email address</label>
+        <input id="recovery-email" type="email" autoComplete="username" required
+          className="auth-input-field" value={email} onChange={(event) => setEmail(event.target.value)}
+          disabled={pending} />
+        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+        <button type="submit" className="auth-button" disabled={pending}>
+          {pending ? "Sending?" : "Send reset link"}
+        </button>
+      </form>}
+      <button type="button" onClick={onBack} className="mt-6 text-sm text-blue-600 hover:underline">
+        Back to sign in
+      </button>
     </div>
   );
 }

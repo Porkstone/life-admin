@@ -1,8 +1,2 @@
-import { auth } from "./auth";
-import router from "./router";
-
-const http = router;
-
-auth.addHttpRoutes(http);
-
-export default http;
+// V2 password authentication uses Convex functions rather than v1 HTTP routes.
+export { default } from "./router";

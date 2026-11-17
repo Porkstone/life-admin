@@ -1,3 +1,4 @@
+import { identityFor, registerAuth } from "./authHelpers";
 import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -23,6 +24,7 @@ async function fixture(
   identity = false,
 ) {
   const t = convexTest(schema, modules);
+  registerAuth(t);
   const raw = generateAgentToken();
   const hash = await hashAgentToken(raw);
   const records = await t.run(async (ctx) => {
@@ -102,7 +104,7 @@ async function fixture(
       tokenId,
     };
   });
-  const owner = t.withIdentity({ subject: `${records.userId}|test-session` });
+  const owner = t.withIdentity(await identityFor(t, records.userId));
   const request = (
     input: unknown,
     token = raw,
@@ -136,7 +138,7 @@ describe("agent credential management", () => {
     );
     await expect(
       f.t
-        .withIdentity({ subject: `${f.anonId}|test` })
+        .withIdentity(await identityFor(f.t, f.anonId))
         .mutation(api.agentAccess.create, input),
     ).rejects.toThrow("registered account");
     const id = await f.owner.mutation(api.agentAccess.create, input);
@@ -159,7 +161,7 @@ describe("agent credential management", () => {
 
   it("isolates connection management by owner and revokes immediately", async () => {
     const f = await fixture();
-    const other = f.t.withIdentity({ subject: `${f.otherId}|test` });
+    const other = f.t.withIdentity(await identityFor(f.t, f.otherId));
     expect(
       (
         await other.query(api.agentAccess.list, {
