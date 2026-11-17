@@ -1,9 +1,13 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
+import { legacyAuthTables } from "./legacyAuthSchema";
 import { agentCategory, agentOperation, agentOutcome } from "./agentValidators";
 
 const applicationTables = {
+  authV2Migrations: defineTable({
+    userId: v.id("users"),
+    migratedAt: v.number(),
+  }).index("by_user", ["userId"]),
   agentTokens: defineTable({
     userId: v.id("users"),
     name: v.string(),
@@ -165,7 +169,7 @@ const applicationTables = {
 };
 
 export default defineSchema({
-  ...authTables,
+  ...legacyAuthTables,
   users: defineTable({
     name: v.optional(v.string()),
     image: v.optional(v.string()),

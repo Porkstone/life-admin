@@ -4,6 +4,7 @@ import { ConvexReactClient } from "convex/react";
 import { BrowserRouter } from "react-router";
 import "./index.css";
 import App from "./App";
+import { api } from "../convex/_generated/api";
 
 const convexUrl = import.meta.env.VITE_CONVEX_URL?.replace(/\/+$/, "");
 
@@ -15,7 +16,11 @@ const convex = new ConvexReactClient(convexUrl);
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-    <ConvexAuthProvider client={convex}>
+    <ConvexAuthProvider client={convex} ambientSignIns={[]} api={{
+      refreshSession: api.auth.refreshSession,
+      signOut: api.auth.signOut,
+      isAuthenticated: api.auth.isAuthenticated,
+    }}>
       <App />
     </ConvexAuthProvider>
   </BrowserRouter>,

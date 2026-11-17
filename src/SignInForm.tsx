@@ -1,81 +1,39 @@
-"use client";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useSignInWithEmailPassword } from "@convex-dev/auth/methods/email-password/react";
 import { useState } from "react";
-import { toast } from "sonner";
+import { api } from "../convex/_generated/api";
+import { authErrorMessage } from "./lib/authErrors";
 
 export function SignInForm() {
-  const { signIn } = useAuthActions();
-  const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
-  const [submitting, setSubmitting] = useState(false);
-
-  // Pre-fill email if provided in URL (from password reset)
-  const [defaultEmail, setDefaultEmail] = useState("");
-
-  useState(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const email = urlParams.get("email");
-    if (email) {
-      setDefaultEmail(email);
-    }
-  });
+  const { signIn, pending } = useSignInWithEmailPassword(api.auth);
+  const [error, setError] = useState<string | null>(null);
 
   return (
-    <div className="w-full">
-      <form
-        className="flex flex-col gap-form-field"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSubmitting(true);
-          const formData = new FormData(e.target as HTMLFormElement);
-          formData.set("flow", flow);
-          void signIn("password", formData).catch((error) => {
-            let toastTitle: string;
-            if (error.message.includes("Invalid password")) {
-              toastTitle = "Invalid password. Please try again.";
-            } else {
-              toastTitle =
-                flow === "signIn"
-                  ? "Could not sign in, did you mean to sign up?"
-                  : "Could not sign up, did you mean to sign in?";
-            }
-            toast.error(toastTitle);
-            setSubmitting(false);
-          });
-        }}
-      >
-        <input
-          className="auth-input-field"
-          type="email"
-          name="email"
-          placeholder="Email"
-          defaultValue={defaultEmail}
-          required
-        />
-        <input
-          className="auth-input-field"
-          type="password"
-          name="password"
-          placeholder="Password"
-          required
-        />
-        <button className="auth-button" type="submit" disabled={submitting}>
-          {flow === "signIn" ? "Sign in" : "Sign up"}
-        </button>
-        <div className="text-center text-sm text-secondary">
-          <span>
-            {flow === "signIn"
-              ? "Don't have an account? "
-              : "Already have an account? "}
-          </span>
-          <button
-            type="button"
-            className="text-primary hover:text-primary-hover hover:underline font-medium cursor-pointer"
-            onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
-          >
-            {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
-          </button>
-        </div>
-      </form>
-    </div>
+    <form className="flex flex-col gap-form-field" onSubmit={async (event) => {
+      event.preventDefault();
+      setError(null);
+      const data = new FormData(event.currentTarget);
+      const email = data.get("email");
+      const password = data.get("password");
+      if (typeof email !== "string" || typeof password !== "string") return;
+      const result = await signIn({
+        email: email.trim(),
+        password,
+      });
+      if (result.status === "error") setError(authErrorMessage(result.userError));
+    }}>
+      <label htmlFor="signin-email" className="text-sm font-medium">Email</label>
+      <input id="signin-email" className="auth-input-field" type="email" name="email"
+        autoComplete="username" required disabled={pending} />
+      <label htmlFor="signin-password" className="text-sm font-medium">Password</label>
+      <input id="signin-password" className="auth-input-field" type="password" name="password"
+        autoComplete="current-password" required disabled={pending} />
+      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+      <button className="auth-button" type="submit" disabled={pending}>
+        {pending ? "Signing in?" : "Sign in"}
+      </button>
+      <p className="text-sm text-gray-600">
+        Signing in for the first time since the upgrade? Use ?Forgot your password?? to set a new password.
+      </p>
+    </form>
   );
 }

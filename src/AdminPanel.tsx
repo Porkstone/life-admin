@@ -1,11 +1,8 @@
-import { FormEvent, useMemo, useState } from "react";
-import { useAction, useMutation, usePaginatedQuery, useQuery } from "convex/react";
+import { useMemo, useState } from "react";
+import { useMutation, usePaginatedQuery, useQuery } from "convex/react";
 import {
   AlertTriangle,
-  Check,
   Crown,
-  Eye,
-  EyeOff,
   KeyRound,
   LoaderCircle,
   Search,
@@ -271,111 +268,17 @@ function PasswordResetDialog({
   user: ResetTarget;
   onClose: () => void;
 }) {
-  const resetPassword = useAction(api.adminActions.resetUserPassword);
-  const [password, setPassword] = useState("");
-  const [confirmation, setConfirmation] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const passwordIsValid = password.length >= 8 && password.length <= 128;
-  const passwordsMatch = password === confirmation && confirmation.length > 0;
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!passwordIsValid || !passwordsMatch) return;
-
-    setIsSubmitting(true);
-    try {
-      await resetPassword({ userId: user._id, newPassword: password });
-      toast.success(`Password reset for ${displayName(user)}`);
-      onClose();
-    } catch (error) {
-      toast.error(errorMessage(error, "Could not reset this password"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
-    <Modal onClose={isSubmitting ? undefined : onClose}>
-      <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5">
-        <div className="flex gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-800">
-            <KeyRound className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-slate-950">Reset user password</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              {displayName(user)} · {user.email}
-            </p>
-          </div>
-        </div>
-        <CloseButton onClick={onClose} disabled={isSubmitting} />
+    <Modal onClose={onClose}>
+      <div className="space-y-4 p-6">
+        <h2 className="text-lg font-semibold">Recover password</h2>
+        <p className="text-sm text-slate-600">
+          Use the email recovery journey for {user.email}. The account owner must
+          open the link in the browser that requested it and choose their new password.
+        </p>
+        <a href="/forgot-password" className="auth-button block text-center">Open password recovery</a>
+        <button type="button" onClick={onClose} className="text-sm text-blue-600">Cancel</button>
       </div>
-
-      <form onSubmit={submit} className="space-y-5 px-6 py-5">
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm leading-5 text-amber-950">
-          <div className="flex gap-2">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>The user will be signed out on every device and must use this new password.</p>
-          </div>
-        </div>
-
-        <PasswordField
-          id="admin-new-password"
-          label="New password"
-          value={password}
-          onChange={setPassword}
-          visible={showPassword}
-          onToggleVisibility={() => setShowPassword((visible) => !visible)}
-          autoFocus
-        />
-        <PasswordField
-          id="admin-confirm-password"
-          label="Confirm new password"
-          value={confirmation}
-          onChange={setConfirmation}
-          visible={showPassword}
-        />
-
-        <div className="flex items-center gap-2 text-xs">
-          <span className={`flex h-5 w-5 items-center justify-center rounded-full ${
-            passwordIsValid ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
-          }`}>
-            <Check className="h-3 w-3" />
-          </span>
-          <span className={passwordIsValid ? "text-emerald-800" : "text-slate-500"}>
-            8–128 characters
-          </span>
-          <span className={`ml-2 flex h-5 w-5 items-center justify-center rounded-full ${
-            passwordsMatch ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-400"
-          }`}>
-            <Check className="h-3 w-3" />
-          </span>
-          <span className={passwordsMatch ? "text-emerald-800" : "text-slate-500"}>
-            Passwords match
-          </span>
-        </div>
-
-        <div className="flex justify-end gap-3 pt-1">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={!passwordIsValid || !passwordsMatch || isSubmitting}
-            className="inline-flex min-w-36 items-center justify-center gap-2 rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {isSubmitting && <LoaderCircle className="h-4 w-4 animate-spin" />}
-            Reset password
-          </button>
-        </div>
-      </form>
     </Modal>
   );
 }
@@ -409,7 +312,7 @@ function ConfirmationDialog({
         </h2>
         <p className="mt-2 text-sm leading-6 text-slate-600">
           {promoting
-            ? `${displayName(change.user)} will be able to manage roles and reset passwords for every registered user.`
+            ? `${displayName(change.user)} will be able to manage existing account roles. Password changes require email recovery.`
             : `${displayName(change.user)} will lose access to this administration area.`}
         </p>
         <div className="mt-6 flex justify-end gap-3">
@@ -462,53 +365,6 @@ function Modal({
   );
 }
 
-function PasswordField({
-  id,
-  label,
-  value,
-  onChange,
-  visible,
-  onToggleVisibility,
-  autoFocus = false,
-}: {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  visible: boolean;
-  onToggleVisibility?: () => void;
-  autoFocus?: boolean;
-}) {
-  return (
-    <label htmlFor={id} className="block">
-      <span className="mb-1.5 block text-sm font-semibold text-slate-700">{label}</span>
-      <span className="relative block">
-        <input
-          id={id}
-          type={visible ? "text" : "password"}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          autoComplete="new-password"
-          autoFocus={autoFocus}
-          minLength={8}
-          maxLength={128}
-          required
-          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 pr-11 text-sm text-slate-950 outline-hidden transition focus:border-slate-500 focus:ring-4 focus:ring-slate-100"
-        />
-        {onToggleVisibility && (
-          <button
-            type="button"
-            onClick={onToggleVisibility}
-            className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-            aria-label={visible ? "Hide password" : "Show password"}
-          >
-            {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </button>
-        )}
-      </span>
-    </label>
-  );
-}
 
 function CloseButton({
   onClick,

@@ -1,3 +1,4 @@
+import { identityFor, registerAuth } from "./authHelpers";
 import { convexTest } from "convex-test";
 import { describe, expect, it } from "vitest";
 import { api } from "../convex/_generated/api";
@@ -34,10 +35,11 @@ describe("NCB completed years", () => {
 describe("vehicle NCB persistence", () => {
   async function fixture() {
     const t = convexTest(schema, modules);
+  registerAuth(t);
     const userId = await t.run((ctx) =>
       ctx.db.insert("users", { email: "ncb-test@example.test" }),
     );
-    return t.withIdentity({ subject: `${userId}|test-session` });
+    return t.withIdentity(await identityFor(t, userId));
   }
   const vehicle = { make: "Test", model: "Car", year: 2020 };
 
