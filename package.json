@@ -8,7 +8,7 @@
     "dev:frontend": "vite --open",
     "dev:backend": "convex dev",
     "build": "vite build",
-    "vercel-build": "convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd \"node scripts/migrate-auth-v2.mjs --deployed && pnpm run build\"",
+    "vercel-build": "node scripts/vercel-build.mjs",
     "lint": "eslint . && tsc -p convex -noEmit --pretty false && tsc -p . -noEmit --pretty false && convex dev --once && vite build",
     "migrate:auth-v2": "node scripts/migrate-auth-v2.mjs"
   },

@@ -19,9 +19,13 @@ Resend's onboarding sender can deliver only to the Resend account owner's
 address. Use a verified domain for other recipients.
 
 Vercel must run `pnpm run vercel-build`. Create a Convex production deploy key
-and set `CONVEX_DEPLOY_KEY` in Vercel. The build deploys the v2 components, runs
-the email mapping migration against that exact deployment (using the URL passed
-by `convex deploy`), and then builds the frontend.
+and set `CONVEX_DEPLOY_KEY` in Vercel. Use a deployment-scoped key (for example
+`prod:<deployment-name>|...`), rather than a project or preview provisioning key.
+The build captures the URL supplied by `convex deploy`, waits for the backend
+and v2 components to deploy successfully, runs the email mapping migration with
+that deployment's key, and then builds the frontend with the captured URL.
+Convex's `--cmd` hook runs before the backend is pushed, so it only captures the
+URL; it must not run the migration. The migration refuses a key/URL mismatch.
 Keep Vercel pointed at the same Convex project/deployment as the existing data.
 
 For the configured development deployment:

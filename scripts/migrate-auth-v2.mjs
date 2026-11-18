@@ -12,11 +12,16 @@ if (args.length > 1 || args.some((arg) => !["--prod", "--deployed"].includes(arg
 }
 let target = args;
 if (args.includes("--deployed")) {
-  // convex deploy supplies this URL to its build command. Select exactly that
-  // deployment, including when Vercel uses a development/preview deploy key.
+  // Use the deployment-scoped CI key directly. A named --deployment selector
+  // takes a different CLI path that requires account-level authentication.
   const hostname = new URL(process.env.VITE_CONVEX_URL).hostname;
   if (!hostname.endsWith(".convex.cloud")) throw new Error("Expected the deployed Convex Cloud URL.");
-  target = ["--deployment", hostname.slice(0, -".convex.cloud".length)];
+  const deployment = hostname.slice(0, -".convex.cloud".length);
+  const keyTarget = process.env.CONVEX_DEPLOY_KEY?.split("|", 1)[0];
+  if (!["prod", "dev"].some((type) => keyTarget === `${type}:${deployment}`)) {
+    throw new Error("CONVEX_DEPLOY_KEY must be a deployment-scoped key matching VITE_CONVEX_URL. Create a deploy key for this deployment in Convex and set it in Vercel.");
+  }
+  target = [];
 }
 function run(args) {
   // Database output can contain credentials. Never print it or child errors.

@@ -4,6 +4,7 @@ const cli = vi.hoisted(() => ({ run: vi.fn() }));
 vi.mock("node:child_process", () => ({ execFileSync: cli.run }));
 
 const originalArgv = process.argv;
+const migrationModule = "../scripts/migrate-auth-v2.mjs";
 let settings: Record<string, string>;
 
 beforeEach(() => {
@@ -11,6 +12,7 @@ beforeEach(() => {
   cli.run.mockReset();
   process.argv = [process.execPath, "scripts/migrate-auth-v2.mjs", "--deployed"];
   vi.stubEnv("VITE_CONVEX_URL", "https://test-deployment.convex.cloud");
+  vi.stubEnv("CONVEX_DEPLOY_KEY", "prod:test-deployment|test-key");
   settings = {
     RESEND_API_KEY: "test-key",
     AUTH_EMAIL_FROM: "Life Admin <owner@example.com>",
@@ -39,16 +41,24 @@ describe("deployment migration environment validation", () => {
   it.each(["RESEND_API_KEY", "AUTH_RESEND_KEY"])("accepts configured deployments with %s", async (key) => {
     delete settings.RESEND_API_KEY;
     settings[key] = "test-key";
-    await expect(import("../scripts/migrate-auth-v2.mjs")).resolves.toBeDefined();
+    await expect(import(migrationModule)).resolves.toBeDefined();
     expect(cli.run).toHaveBeenCalledTimes(5);
     for (const [, args] of cli.run.mock.calls) {
-      expect(args.slice(-2)).toEqual(["--deployment", "test-deployment"]);
+      expect(args).not.toContain("--deployment");
+      expect(args).not.toContain("--prod");
+      expect(args).not.toContain("--deployed");
     }
+  });
+
+  it.each(["prod:other-deployment|test-key", "preview:team:project|test-key", ""])("rejects an unbound or mismatched deployment key", async (key) => {
+    vi.stubEnv("CONVEX_DEPLOY_KEY", key);
+    await expect(import(migrationModule)).rejects.toThrow("deployment-scoped key matching");
+    expect(cli.run).not.toHaveBeenCalled();
   });
 
   it.each(["RESEND_API_KEY", "AUTH_EMAIL_FROM", "SITE_URL"])("stops before reading data when %s is missing", async (key) => {
     delete settings[key];
-    await expect(import("../scripts/migrate-auth-v2.mjs")).rejects.toThrow("Recovery requires");
+    await expect(import(migrationModule)).rejects.toThrow("Recovery requires");
     expect(cli.run).toHaveBeenCalledTimes(1);
   });
 });
