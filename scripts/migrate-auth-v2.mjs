@@ -36,7 +36,9 @@ function rows(table, component) {
   return data;
 }
 
-const names = new Set(run(["env", "list"]).split(/\r?\n/).map((s) => s.trim()));
+// Request names explicitly: the default is NAME=value outside an AI agent,
+// including on Vercel. Never fetch secret values just to check configuration.
+const names = new Set(run(["env", "list", "--names-only"]).split(/\r?\n/).map((s) => s.trim()));
 if (!(names.has("RESEND_API_KEY") || names.has("AUTH_RESEND_KEY")) ||
     !names.has("AUTH_EMAIL_FROM") || !names.has("SITE_URL")) {
   throw new Error("Recovery requires RESEND_API_KEY (or AUTH_RESEND_KEY), AUTH_EMAIL_FROM and SITE_URL on this deployment.");
