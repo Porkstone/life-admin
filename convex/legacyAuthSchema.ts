@@ -26,7 +26,7 @@ export const legacyAuthTables = {
   }).index("accountId", ["accountId"]).index("code", ["code"]),
   authVerifiers: defineTable({
     sessionId: v.optional(v.id("authSessions")), signature: v.optional(v.string()),
-  }).index("signature", ["signature"]),
+  }).index("signature", ["signature"]).index("by_session", ["sessionId"]),
   authRateLimits: defineTable({
     identifier: v.string(), lastAttemptTime: v.number(), attemptsLeft: v.number(),
   }).index("identifier", ["identifier"]),

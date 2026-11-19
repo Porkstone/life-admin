@@ -7,6 +7,7 @@ import {
   LoaderCircle,
   Search,
   ShieldCheck,
+  Trash2,
   UserRound,
   UsersRound,
   X,
@@ -38,6 +39,9 @@ export function AdminPanel() {
     { initialNumItems: 20 },
   );
   const setUserRole = useMutation(api.admin.setUserRole);
+  const deleteUser = useMutation(api.admin.deleteUser);
+  const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [search, setSearch] = useState("");
   const [resetTarget, setResetTarget] = useState<ResetTarget | null>(null);
   const [roleChange, setRoleChange] = useState<RoleChange | null>(null);
@@ -75,6 +79,20 @@ export function AdminPanel() {
       toast.error(errorMessage(error, "Could not change this user's role"));
     } finally {
       setIsChangingRole(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      await deleteUser({ userId: deleteTarget._id });
+      toast.success(`${displayName(deleteTarget)} was deleted`);
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(errorMessage(error, "Could not delete this account"));
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -219,6 +237,16 @@ export function AdminPanel() {
                         <KeyRound className="h-3.5 w-3.5" />
                         Reset password
                       </button>
+                      <button
+                        type="button"
+                        disabled={!currentUser || isCurrentUser}
+                        title={isCurrentUser ? "You cannot delete your own account" : undefined}
+                        onClick={() => setDeleteTarget(user)}
+                        className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-xs font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Delete
+                      </button>
                     </div>
                   </article>
                 );
@@ -241,6 +269,33 @@ export function AdminPanel() {
           </div>
         )}
       </div>
+
+      {deleteTarget && (
+        <Modal onClose={isDeleting ? undefined : () => setDeleteTarget(null)}>
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <Trash2 className="h-6 w-6 text-red-700" />
+              <CloseButton onClick={() => setDeleteTarget(null)} disabled={isDeleting} />
+            </div>
+            <h2 className="mt-5 text-xl font-semibold text-slate-950">Delete account?</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Permanently delete {displayName(deleteTarget)} and remove its sign-in and agent access.
+              This cannot be undone. Accounts that still own records cannot be deleted.
+            </p>
+            <div className="mt-6 flex justify-end gap-3">
+              <button type="button" disabled={isDeleting} onClick={() => setDeleteTarget(null)}
+                className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 disabled:opacity-50">
+                Cancel
+              </button>
+              <button type="button" disabled={isDeleting} onClick={confirmDelete}
+                className="inline-flex items-center gap-2 rounded-xl bg-red-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-50">
+                {isDeleting && <LoaderCircle className="h-4 w-4 animate-spin" />}
+                {isDeleting ? "Deleting…" : "Delete account"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {resetTarget && (
         <PasswordResetDialog

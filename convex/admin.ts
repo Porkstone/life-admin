@@ -1,6 +1,8 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
+import { components } from "./_generated/api";
+import type { Id, TableNames } from "./_generated/dataModel";
 import {
   internalQuery,
   mutation,
@@ -160,6 +162,71 @@ export const setUserRole = mutation({
     }
 
     await ctx.db.patch(args.userId, { role: args.role });
+    return null;
+  },
+});
+
+export const deleteUser = mutation({
+  args: { userId: v.id("users") },
+  returns: v.null(),
+  handler: async (ctx, { userId }) => {
+    const actorId = await getAuthUserId(ctx);
+    if (!actorId) throw new Error("Not authenticated");
+    const actor = await ctx.db.get(actorId);
+    if (actor?.role !== "admin") throw new Error("Administrator access required");
+    if (actorId === userId) throw new Error("You cannot delete your own account");
+    const target = await ctx.db.get(userId);
+    if (!target) throw new Error("User not found");
+    if (target.role === "admin") {
+      const admins = await ctx.db.query("users").withIndex("by_role", (q) => q.eq("role", "admin")).take(2);
+      if (admins.length < 2) throw new Error("The last administrator cannot be deleted");
+    }
+
+    // Do not silently destroy or orphan life-admin records.
+    for (const table of ["people", "vehicles", "homes", "documents", "mobileContracts"] as const) {
+      if (await ctx.db.query(table).withIndex("by_user", (q) => q.eq("userId", userId)).first()) {
+        throw new Error("This account still owns records. Remove its records before deleting the account.");
+      }
+    }
+    // Bound cleanup in this transaction. Throwing rolls back ALL component and
+    // application changes, so an oversized account is never partially deleted.
+    let deleted = 0;
+    const removeRows = async (rows: { _id: Id<TableNames> }[]) => {
+      if (rows.length > 100 || deleted + rows.length > 1000) {
+        throw new Error("This account needs additional cleanup before it can be deleted");
+      }
+      deleted += rows.length;
+      for (const row of rows) await ctx.db.delete(row._id);
+    };
+    for (const table of ["agentTokens", "agentAccessLogs", "authV2Migrations"] as const) {
+      await removeRows(await ctx.db.query(table).withIndex("by_user", (q) => q.eq("userId", userId)).take(101));
+    }
+    await removeRows(await ctx.db.query("invites").withIndex("by_owner", (q) => q.eq("ownerId", userId)).take(101));
+    await removeRows(await ctx.db.query("invites").withIndex("by_accepted_by", (q) => q.eq("acceptedBy", userId)).take(101));
+    await removeRows(await ctx.db.query("sharedAccess").withIndex("by_owner", (q) => q.eq("ownerId", userId)).take(101));
+    await removeRows(await ctx.db.query("sharedAccess").withIndex("by_shared_with", (q) => q.eq("sharedWithId", userId)).take(101));
+    if (target.email) {
+      await removeRows(await ctx.db.query("passwordResetTokens").withIndex("by_email", (q) => q.eq("email", target.email!)).take(101));
+    }
+    const accounts = await ctx.db.query("authAccounts").withIndex("userIdAndProvider", (q) => q.eq("userId", userId)).take(101);
+    // Check the bound before following any child references.
+    if (accounts.length > 100) throw new Error("This account needs additional cleanup before it can be deleted");
+    for (const account of accounts) {
+      await removeRows(await ctx.db.query("authVerificationCodes").withIndex("accountId", (q) => q.eq("accountId", account._id)).take(101));
+    }
+    await removeRows(accounts);
+    const legacySessions = await ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", userId)).take(101);
+    if (legacySessions.length > 100) throw new Error("This account needs additional cleanup before it can be deleted");
+    for (const session of legacySessions) {
+      await removeRows(await ctx.db.query("authRefreshTokens").withIndex("sessionId", (q) => q.eq("sessionId", session._id)).take(101));
+      await removeRows(await ctx.db.query("authVerifiers").withIndex("by_session", (q) => q.eq("sessionId", session._id)).take(101));
+    }
+    await removeRows(legacySessions);
+
+    const sessions = await ctx.runQuery(components.auth.public.listSessions, { userId });
+    await ctx.runMutation(components.auth.public.revokeSessions, { sessionIds: sessions.map((session) => session.sessionId) });
+    await ctx.runMutation(components.authEmail.verifiedEmails.deleteUser, { userId });
+    await ctx.db.delete(userId);
     return null;
   },
 });
